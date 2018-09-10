@@ -10,7 +10,7 @@ INSTALL_REQUIREMENTS = [
 
 
 setup(
-    name='djangocms-versioning',
+    name='djangocms-version-locking',
     packages=find_packages(),
     include_package_data=True,
     version=djangocms_version_locking.__version__,

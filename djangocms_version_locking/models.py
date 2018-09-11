@@ -12,7 +12,7 @@ class VersionLock(models.Model):
         on_delete=models.PROTECT,
         verbose_name=_('locked by')
     )
-    version = models.ForeignKey(
+    version = models.OneToOneField(
         Version,
         on_delete=models.PROTECT,
         verbose_name=_('version')

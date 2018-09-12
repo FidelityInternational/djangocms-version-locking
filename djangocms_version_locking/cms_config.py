@@ -3,9 +3,7 @@ from django.conf import settings
 from cms.app_base import CMSAppConfig, CMSAppExtension
 from cms.models import PageContent
 
-from .helpers import (
-    replace_admin_for_models,
-)
+from .helpers import replace_admin_for_models
 
 
 class VersionLockingCMSExtension(CMSAppExtension):
@@ -16,7 +14,7 @@ class VersionLockingCMSExtension(CMSAppExtension):
         with an admin model class that inherits from VersioningAdminMixin.
         """
         replace_admin_for_models(
-            [lockable['content_model'] for lockable in cms_config.version_lock_list],
+            [lockable['locking_model'] for lockable in cms_config.version_lock_list],
         )
 
     def configure_app(self, cms_config):
@@ -31,6 +29,7 @@ class VersionLockingCMSConfig(CMSAppConfig):
         settings, 'VERSION_LOCKING_CMS_MODELS_ENABLED', True)
     version_lock_list = [
         {
-            'content_model': PageContent,
+            'locking_model': PageContent,
         }
     ]
+

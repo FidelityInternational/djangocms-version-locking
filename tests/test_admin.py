@@ -33,7 +33,6 @@ class AdminReplaceVersioningTestCase(CMSTestCase):
 
         self.assertNotIn(self.model, self.site._registry)
 
-    # FIXME: Fails because PollContent lives in the Versioning project, I think .......
     def test_replace_admin_on_registered_models_default_site(self):
         with patch.object(djangocms_version_locking.helpers, '_replace_admin_for_model') as mock:
             replace_admin_for_models([PollContent])

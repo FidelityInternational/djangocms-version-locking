@@ -5,18 +5,17 @@ from django.contrib import admin
 
 from cms.test_utils.testcases import CMSTestCase
 
-from djangocms_versioning.test_utils.polls.models import (
-    Answer,
-    Poll,
-    PollContent,
-)
-
 import djangocms_version_locking.helpers
+from djangocms_version_locking.admin import VersionLockAdminMixin
 from djangocms_version_locking.helpers import (
     replace_admin_for_models,
     version_lock_admin_factory,
 )
-from djangocms_version_locking.admin import VersionLockAdminMixin
+from djangocms_version_locking.test_utils.polls.models import (
+    Answer,
+    Poll,
+    PollContent,
+)
 
 
 class AdminReplaceVersioningTestCase(CMSTestCase):

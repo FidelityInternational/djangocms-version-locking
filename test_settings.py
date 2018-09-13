@@ -3,8 +3,8 @@ HELPER_SETTINGS = {
     'INSTALLED_APPS': [
         'djangocms_text_ckeditor',
         'djangocms_versioning',
-        'djangocms_versioning.test_utils.polls',
         'djangocms_version_locking',
+        'djangocms_version_locking.test_utils.polls',
     ],
     'MIGRATION_MODULES': {
         'auth': None,

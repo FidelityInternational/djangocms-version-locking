@@ -11,6 +11,12 @@ class VersionLockAdminMixin(VersioningAdminMixin):
     Mixin providing versioning functionality to admin classes of
     version models.
     """
+    def save_model(self, request, obj, form, change):
+        """
+        Overrides the save method to create a version lock on the
+        version object when a content object is created
+        """
+        super().save_model(request, obj, form, change)
 
     """
     TODO: Implement permissions

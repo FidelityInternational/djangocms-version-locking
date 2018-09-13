@@ -16,9 +16,7 @@ class VersionLockingCMSExtension(CMSAppExtension):
         Replaces admin model classes for all registered content types
         with an admin model class that inherits from VersioningAdminMixin.
         """
-        replace_admin_for_models(
-            [lockable['locking_model'] for lockable in cms_config.version_lock_list],
-        )
+        replace_admin_for_models(cms_config.version_lock_list)
 
     def configure_app(self, cms_config):
         self.handle_admin_classes(cms_config)
@@ -30,9 +28,5 @@ class VersionLockingCMSConfig(CMSAppConfig):
     """
     djangocms_version_locking_enabled = getattr(
         settings, 'VERSION_LOCKING_CMS_MODELS_ENABLED', True)
-    version_lock_list = [
-        {
-            'locking_model': PageContent,
-        }
-    ]
+    version_lock_list = [PageContent,]
 

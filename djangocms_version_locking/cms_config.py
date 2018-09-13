@@ -8,6 +8,9 @@ from .helpers import replace_admin_for_models
 
 class VersionLockingCMSExtension(CMSAppExtension):
 
+    def __init__(self):
+        from . import monkeypatch
+
     def handle_admin_classes(self, cms_config):
         """
         Replaces admin model classes for all registered content types

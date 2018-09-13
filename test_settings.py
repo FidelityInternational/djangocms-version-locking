@@ -1,11 +1,9 @@
 HELPER_SETTINGS = {
     'TIME_ZONE': 'Europe/London',
-    'TOP_INSTALLED_APPS': [
-        'djangocms_version_locking',
-    ],
     'INSTALLED_APPS': [
         'djangocms_text_ckeditor',
         'djangocms_versioning',
+        'djangocms_version_locking',
     ],
     'MIGRATION_MODULES': {
         'auth': None,

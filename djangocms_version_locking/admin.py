@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from djangocms_versioning.admin import VersionAdmin, VersioningAdminMixin
+from djangocms_versioning.admin import VersioningAdminMixin
 
 from .models import VersionLock
 
@@ -25,7 +25,6 @@ class VersionLockAdminMixin(VersioningAdminMixin):
     """
 
 class VersionLockingAdmin(admin.ModelAdmin):
-#class VersionLockingAdmin(VersionAdmin):
     """
     Admin class used for version locked models.
     """
@@ -33,14 +32,11 @@ class VersionLockingAdmin(admin.ModelAdmin):
         'nr',
         'created',
         'created_by',
-        'locked'
+        'locked',
         'state',
         'state_actions',
     )
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('content')
-
-    def locked(self):
-        return ""
+    def locked(self, obj):
+        return obj.id
     locked.short_description = _('version locked')

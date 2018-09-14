@@ -1,4 +1,3 @@
-from unittest import skip
 from unittest.mock import Mock, patch
 
 from django.contrib import admin

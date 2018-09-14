@@ -37,6 +37,8 @@ class VersionLockingAdmin(admin.ModelAdmin):
         'state_actions',
     )
 
-    def locked(self, obj):
-        return obj.id
-    locked.short_description = _('version locked')
+    def locked(self, version):
+        if version.versionlock:
+            return "Yes"
+        return ""
+    locked.short_description = _('locked')

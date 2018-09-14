@@ -1,11 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
 
-from djangocms_versioning import admin, models
-
 from djangocms_versioning import admin, models, constants
 
-from .admin import VersionLockingAdmin
-from .models import VersionLock
+from ..models import VersionLock
 
 
 # FIXME: Move to a new patch file called models, second import in cms_config or app ready method?

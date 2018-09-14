@@ -15,11 +15,12 @@ from djangocms_version_locking.helpers import (
 
 from django.apps import apps
 
+from djangocms_versioning.test_utils import factories
+
 
 from djangocms_version_locking.models import Version
-from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
-from djangocms_version_locking.test_utils.polls.models import PollContent
+from djangocms_version_locking.test_utils.polls.models import Poll, PollContent
 
 
 # Test When a version is in draft a version lock is created
@@ -39,7 +40,10 @@ class MytestCase(CMSTestCase):
         TODO
         """
 
-        version = factories.PollVersionFactory()
+        version_obj = Version.objects.get(
+            content_type=ContentType.objects.get_for_model(self.model),
+            object_id=self.model.pk,
+        )
         user = factories.UserFactory()
 
         assertTrue(False)

@@ -17,4 +17,3 @@ class VersionLock(models.Model):
         on_delete=models.PROTECT,
         verbose_name=_('version')
     )
-

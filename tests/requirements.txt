@@ -1,3 +1,4 @@
 # test libraries
 coverage
 djangocms_helper
+factory-boy

@@ -4,6 +4,7 @@ HELPER_SETTINGS = {
         'djangocms_text_ckeditor',
         'djangocms_versioning',
         'djangocms_version_locking',
+        'djangocms_version_locking.test_utils.polls',
     ],
     'MIGRATION_MODULES': {
         'auth': None,

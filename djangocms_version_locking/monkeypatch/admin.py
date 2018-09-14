@@ -1,11 +1,16 @@
+from django.utils.translation import ugettext_lazy as _
+
+from djangocms_versioning import admin, models
+
 from djangocms_versioning import admin, models, constants
 
 from .admin import VersionLockingAdmin
 from .models import VersionLock
 
 
-master_version_save = models.Version.save
+# FIXME: Move to a new patch file called models, second import in cms_config or app ready method?
 # Override the save method to add a version lock
+master_version_save = models.Version.save
 def save(version, **kwargs):
     master_version_save(version, **kwargs)
 
@@ -23,6 +28,16 @@ def save(version, **kwargs):
     return version
 models.Version.save = save
 
-# Replace the versioning admin instance with a locking version!
-admin.VersionAdmin.locked = VersionLockingAdmin.locked
-admin.VersionAdmin.list_display = VersionLockingAdmin.list_display
+# VersionAdmin new locked field
+def locked(self, version):
+    if version.versionlock:
+        return "Yes"
+    return ""
+locked.short_description = _('locked')
+
+# Replace the Version model admin class with a Versionlock class!
+admin.VersionAdmin.locked = locked
+# Add the new defined locked field
+created_by_index = admin.VersionAdmin.list_display.index('created_by')
+admin.VersionAdmin.list_display = admin.VersionAdmin.list_display[:created_by_index] + ('locked', ) + admin.VersionAdmin.list_display[created_by_index:]
+

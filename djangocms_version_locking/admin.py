@@ -1,9 +1,4 @@
-from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
-
 from djangocms_versioning.admin import VersioningAdminMixin
-
-from .models import VersionLock
 
 
 class VersionLockAdminMixin(VersioningAdminMixin):
@@ -24,21 +19,3 @@ class VersionLockAdminMixin(VersioningAdminMixin):
         return False
     """
 
-class VersionLockingAdmin(admin.ModelAdmin):
-    """
-    Admin class used for version locked models.
-    """
-    list_display = (
-        'nr',
-        'created',
-        'created_by',
-        'locked',
-        'state',
-        'state_actions',
-    )
-
-    def locked(self, version):
-        if version.versionlock:
-            return "Yes"
-        return ""
-    locked.short_description = _('locked')

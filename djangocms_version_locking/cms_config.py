@@ -12,7 +12,7 @@ class VersionLockingCMSExtension(CMSAppExtension):
         # The monkey patch is here to be sure thta at module load time the Version class
         # is registered and can be overriden without requiring a strict load order
         # in the INSTALLED_APPS setting in a projects settings.py
-        from . import monkeypatch
+        from .monkeypatch import admin as monkeypatch_admin
 
     def handle_admin_classes(self, cms_config):
         """

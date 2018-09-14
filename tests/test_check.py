@@ -6,7 +6,7 @@ from djangocms_versioning.test_utils.factories import (
     PlaceholderFactory,
 )
 
-from djangocms_version_locking.check import content_is_not_locked
+from djangocms_version_locking.check import content_is_unlocked
 from djangocms_version_locking.models import VersionLock
 
 
@@ -17,7 +17,7 @@ class CheckLockTestCase(CMSTestCase):
         version = PageVersionFactory()
         placeholder = PlaceholderFactory(source=version.content)
 
-        self.assertTrue(content_is_not_locked(placeholder, user))
+        self.assertTrue(content_is_unlocked(placeholder, user))
 
     def test_check_locked_for_the_same_user(self):
         user = self.get_superuser()
@@ -28,7 +28,7 @@ class CheckLockTestCase(CMSTestCase):
             created_by=user,
         )
 
-        self.assertTrue(content_is_not_locked(placeholder, user))
+        self.assertTrue(content_is_unlocked(placeholder, user))
 
     def test_check_locked_for_the_other_user(self):
         user1 = self.get_superuser()
@@ -40,13 +40,13 @@ class CheckLockTestCase(CMSTestCase):
             created_by=user1,
         )
 
-        self.assertFalse(content_is_not_locked(placeholder, user2))
+        self.assertFalse(content_is_unlocked(placeholder, user2))
 
 
 class CheckInjectTestCase(CMSTestCase):
 
     def test_lock_check_is_injected_into_default_checks(self):
         self.assertIn(
-            content_is_not_locked,
+            content_is_unlocked,
             PlaceholderRelationField.default_checks,
         )

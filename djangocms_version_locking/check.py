@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from .models import VersionLock
 
 
-def content_is_not_locked(placeholder, user):
+def content_is_unlocked(placeholder, user):
     """Pass the check if lock doesn't exist or
     object is locked to provided user.
     """

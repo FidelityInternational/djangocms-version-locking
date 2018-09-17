@@ -1,50 +1,61 @@
-from unittest.mock import Mock, patch
-
-from django.contrib import admin
-
 from cms.test_utils.testcases import CMSTestCase
 
-import djangocms_version_locking.helpers
-from djangocms_version_locking.admin import VersionLockAdminMixin
-from djangocms_version_locking.helpers import (
-    replace_admin_for_models,
-    version_lock_admin_factory,
-)
+from djangocms_versioning import constants
+
+from djangocms_version_locking.test_utils import factories
 
 
+class TestVersionsLockTestCase(CMSTestCase):
 
-from django.apps import apps
-
-from djangocms_versioning.test_utils import factories
-
-
-from djangocms_version_locking.models import Version
-from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
-from djangocms_version_locking.test_utils.polls.models import Poll, PollContent
-
-
-# Test When a version is in draft a version lock is created
-# Test When a version is in publish a version lock is deleted
-
-# Test When a version is in draft and a version lock does not exist the delete is ok
-
-
-class MytestCase(CMSTestCase):
-
-    def setUp(self):
-        self.model = Poll
-        self.site = admin.AdminSite()
-
-    def test_version_is_locked_on_copy(self):
+    def test_version_is_locked_for_draft(self):
         """
-        TODO
+        A version lock is present when a content version is in a draft state
         """
+        draft_version = factories.PollVersionFactory(state=constants.DRAFT)
 
-        version_obj = Version.objects.get(
-            content_type=ContentType.objects.get_for_model(self.model),
-            object_id=self.model.pk,
-        )
+        self.assertTrue(hasattr(draft_version, 'versionlock'))
+
+    def test_version_is_unlocked_for_published(self):
+        """
+        A version lock is not present when a content version is in a published state
+        """
+        published_version = factories.PollVersionFactory(state=constants.PUBLISHED)
+
+        self.assertFalse(hasattr(published_version, 'versionlock'))
+
+
+class TestVersionCopyLocks(CMSTestCase):
+
+    def test_draft_version_copy_creates_draft_lock(self):
+        """
+        A version lock is created for a new draft version copied from a draft version
+        """
         user = factories.UserFactory()
+        draft_version = factories.PollVersionFactory(state=constants.DRAFT)
+        new_version = draft_version.copy(user)
 
-        assertTrue(False)
+        self.assertTrue(hasattr(new_version, 'versionlock'))
 
+    def test_published_version_copy_creates_draft_lock(self):
+        """
+        A version lock is created for a new draft version copied from a draft version
+        """
+        user = factories.UserFactory()
+        published_version = factories.PollVersionFactory(state=constants.PUBLISHED)
+        new_version = published_version.copy(user)
+
+        self.assertTrue(hasattr(new_version, 'versionlock'))
+
+    def test_version_copy_adds_correct_locked_user(self):
+        """
+        A copied version creates a lock for the user that copied the version.
+        The users should not be the same.
+        """
+        original_user = factories.UserFactory()
+        original_version = factories.PollVersionFactory(created_by=original_user)
+        copy_user = factories.UserFactory()
+        copied_version = original_version.copy(copy_user)
+
+        self.assertNotEqual(original_user, copy_user)
+        self.assertEqual(original_version.versionlock.created_by, original_user)
+        self.assertEqual(copied_version.versionlock.created_by, copy_user)

@@ -21,7 +21,10 @@ def save(version, **kwargs):
     # A published version has no lock, an existing lock should be removed
     elif version.state == constants.PUBLISHED:
         # TODO: Catch a potential for the version to not exist
-        VersionLock.objects.get(version=version).delete()
+        try:
+            VersionLock.objects.get(version=version).delete()
+        except VersionLock.DoesNotExist:
+            pass
     return version
 models.Version.save = save
 

@@ -5,33 +5,33 @@ from djangocms_versioning import admin, models, constants
 from ..models import VersionLock
 
 
-# FIXME: Move to a new patch file called models, second import in cms_config or app ready method?
-# Override the save method to add a version lock
-master_version_save = models.Version.save
-def save(version, **kwargs):
-    master_version_save(version, **kwargs)
-
-    # A draft version is locked by default
-    if version.state == constants.DRAFT:
-        # create lock
-        VersionLock.objects.create(
-            version=version,
-            created_by=version.created_by # TODO: Find out if this user is ok to use, could it be different. TEST!!
-        )
-    # A published version has no lock, an existing lock should be removed
-    elif version.state == constants.PUBLISHED:
-        # TODO: Catch a potential for the version to not exist
-        try:
-            VersionLock.objects.get(version=version).delete()
-        except VersionLock.DoesNotExist:
-            pass
-    return version
-models.Version.save = save
+def new_save(old_save):
+    """
+    Override the save method to add a version lock
+    """
+    def inner(version, **kwargs):
+        old_save(version, **kwargs)
+        # A draft version is locked by default
+        if version.state == constants.DRAFT:
+            # create lock
+            VersionLock.objects.create(
+                version=version,
+                created_by=version.created_by
+            )
+        # A published version has no lock, an existing lock should be removed
+        elif version.state == constants.PUBLISHED:
+            try:
+                VersionLock.objects.get(version=version).delete()
+            except VersionLock.DoesNotExist:
+                pass
+        return version
+    return inner
+models.Version.save = new_save(models.Version.save)
 
 
 # VersionAdmin new locked field
 def locked(self, version):
-    if version.versionlock:
+    if hasattr(version, "versionlock"):
         return "Yes"
     return ""
 locked.short_description = _('locked')

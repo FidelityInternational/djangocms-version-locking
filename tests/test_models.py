@@ -1,6 +1,6 @@
 from cms.test_utils.testcases import CMSTestCase
 
-from djangocms_versioning import constants
+from djangocms_versioning.constants import DRAFT, PUBLISHED
 
 from djangocms_version_locking.test_utils import factories
 
@@ -11,7 +11,7 @@ class TestVersionsLockTestCase(CMSTestCase):
         """
         A version lock is present when a content version is in a draft state
         """
-        draft_version = factories.PollVersionFactory(state=constants.DRAFT)
+        draft_version = factories.PollVersionFactory(state=DRAFT)
 
         self.assertTrue(hasattr(draft_version, 'versionlock'))
 
@@ -19,7 +19,7 @@ class TestVersionsLockTestCase(CMSTestCase):
         """
         A version lock is not present when a content version is in a published state
         """
-        published_version = factories.PollVersionFactory(state=constants.PUBLISHED)
+        published_version = factories.PollVersionFactory(state=PUBLISHED)
 
         self.assertFalse(hasattr(published_version, 'versionlock'))
 
@@ -31,7 +31,7 @@ class TestVersionCopyLocks(CMSTestCase):
         A version lock is created for a new draft version copied from a draft version
         """
         user = factories.UserFactory()
-        draft_version = factories.PollVersionFactory(state=constants.DRAFT)
+        draft_version = factories.PollVersionFactory(state=DRAFT)
         new_version = draft_version.copy(user)
 
         self.assertTrue(hasattr(new_version, 'versionlock'))
@@ -41,7 +41,7 @@ class TestVersionCopyLocks(CMSTestCase):
         A version lock is created for a new draft version copied from a draft version
         """
         user = factories.UserFactory()
-        published_version = factories.PollVersionFactory(state=constants.PUBLISHED)
+        published_version = factories.PollVersionFactory(state=PUBLISHED)
         new_version = published_version.copy(user)
 
         self.assertTrue(hasattr(new_version, 'versionlock'))

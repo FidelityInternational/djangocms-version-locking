@@ -9,7 +9,7 @@ from .helpers import replace_admin_for_models
 class VersionLockingCMSExtension(CMSAppExtension):
 
     def __init__(self):
-        # The monkey patch is here to be sure thta at module load time the Version class
+        # The monkey patch is here to be sure that at module load time the Version class
         # is registered and can be overriden without requiring a strict load order
         # in the INSTALLED_APPS setting in a projects settings.py
         from .monkeypatch import admin as monkeypatch_admin

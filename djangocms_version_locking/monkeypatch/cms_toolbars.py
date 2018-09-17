@@ -28,7 +28,7 @@ def _new_add_edit_button(self):
         _('Edit'),
         url='',
         disabled=True,
-        extra_classes=['cms-btn-action', 'cms-versioning-js-edit-btn'],
+        extra_classes=['cms-btn-action', 'cms-icon', 'cms-icon-lock'],
     )
     self.toolbar.add_item(item)
 

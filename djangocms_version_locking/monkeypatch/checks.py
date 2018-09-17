@@ -1,6 +1,6 @@
 from cms.models import fields
 
-from ..check import content_is_unlocked
+from djangocms_version_locking.check import placeholder_content_is_unlocked
 
 
-fields.PlaceholderRelationField.default_checks += [content_is_unlocked]
+fields.PlaceholderRelationField.default_checks += [placeholder_content_is_unlocked]

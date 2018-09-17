@@ -28,12 +28,14 @@ def save(version, **kwargs):
     return version
 models.Version.save = save
 
+
 # VersionAdmin new locked field
 def locked(self, version):
     if version.versionlock:
         return "Yes"
     return ""
 locked.short_description = _('locked')
+
 
 # Replace the Version model admin class with a Versionlock class!
 admin.VersionAdmin.locked = locked

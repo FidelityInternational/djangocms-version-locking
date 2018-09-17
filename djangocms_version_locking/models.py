@@ -16,4 +16,3 @@ class VersionLock(models.Model):
         Version,
         verbose_name=_('version')
     )
-

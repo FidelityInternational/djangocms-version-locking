@@ -6,13 +6,6 @@ from django.core.exceptions import ImproperlyConfigured
 from cms.app_base import CMSAppConfig, CMSAppExtension
 from cms.models import PageContent
 
-from djangocms_versioning.datastructures import VersionableItem
-from djangocms_versioning.cms_config import (
-    on_page_content_publish,
-    on_page_content_unpublish,
-    copy_page_content
-)
-
 
 from .helpers import replace_admin_for_models
 
@@ -50,12 +43,14 @@ class VersionLockingCMSExtension(CMSAppExtension):
         if not isinstance(cms_config.version_lock_models, typing.List):
             raise ImproperlyConfigured("version_lock_models is not defined as a list")
 
+        # Check that the registered loxking models are also registered with versioning
         for lock_model in cms_config.version_lock_models:
             if not self._lock_model_in_version_list(lock_model, cms_config.versioning):
                 raise ImproperlyConfigured("%s is not defined in djangocms_versioning" % lock_model)
 
     def configure_app(self, cms_config):
 
+        # FIXME: REMOVEME: Temp hack to allow me to continue
         if hasattr(cms_config, 'versioning'):
             self.handle_settings(cms_config)
             self.handle_admin_classes(cms_config)

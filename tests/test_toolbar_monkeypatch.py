@@ -54,8 +54,10 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         toolbar = self._get_toolbar(version.content, user, edit_mode=True)
         toolbar.post_template_populate()
         buttons = toolbar.toolbar.get_right_items()[0].buttons
-        self.assertEqual(len(buttons), 1)
-        self.assertNotEqual(buttons[0].name, 'Edit')
+        self.assertListEqual(
+            [b for b in buttons if b.name == 'Edit'],
+            []
+        )
 
     def test_disable_edit_button_when_content_is_locked(self):
         user = self.get_superuser()

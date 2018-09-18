@@ -6,7 +6,6 @@ from django.core.exceptions import ImproperlyConfigured
 from cms.app_base import CMSAppConfig, CMSAppExtension
 from cms.models import PageContent
 
-
 from .helpers import replace_admin_for_models
 
 

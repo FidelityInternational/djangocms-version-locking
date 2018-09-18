@@ -5,7 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_version_locking.cms_config import VersionLockingCMSExtension
-
+from djangocms_version_locking.test_utils.polls.models import PollContent
 
 class VersionLockExtensionUnitTestCase(CMSTestCase):
 
@@ -54,3 +54,19 @@ class VersionLockExtensionUnitTestCase(CMSTestCase):
 
         with self.assertRaises(ImproperlyConfigured):
             extensions.handle_settings(cms_config_3)
+
+    def test_raises_exception_if_locking_models_not_registered_with_versioning(self):
+        """
+        If a model that's not been registered with versioning is defined as a locking model
+        an exception is thrown
+        """
+        extensions = VersionLockingCMSExtension()
+        cms_config = Mock(
+            spec=[],
+            djangocms_versioning_enabled=False,
+            version_lock_models=[PollContent],
+            versioning=[]
+        )
+
+        with self.assertRaises(ImproperlyConfigured):
+            extensions.handle_settings(cms_config)

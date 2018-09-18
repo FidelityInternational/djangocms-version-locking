@@ -15,7 +15,6 @@ from djangocms_version_locking.helpers import (
     version_lock_admin_factory,
 )
 from djangocms_version_locking.test_utils import factories
-from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
 from djangocms_version_locking.test_utils.polls.models import (
     Answer,
     Poll,
@@ -107,10 +106,6 @@ class AdminLockedFieldTestCase(CMSTestCase):
 
         self.assertEqual("Yes", self.hijacked_admin.locked(self.hijacked_admin, draft_version))
 
-
-
-
-from cms.utils.urlutils import admin_reverse
 
 class AdminPermissionTestCase(CMSTestCase):
 

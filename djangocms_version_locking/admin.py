@@ -1,6 +1,6 @@
 from djangocms_versioning.admin import VersioningAdminMixin
-
 from djangocms_versioning.models import Version
+
 
 class VersionLockAdminMixin(VersioningAdminMixin):
     """
@@ -22,5 +22,3 @@ class VersionLockAdminMixin(VersioningAdminMixin):
                 return False
 
         return True
-
-

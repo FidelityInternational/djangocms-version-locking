@@ -59,3 +59,11 @@ def content_is_unlocked(content, user):
     except VersionLock.DoesNotExist:
         return True
     return lock.created_by == user
+
+
+def placeholder_content_is_unlocked(placeholder, user):
+    """Check if lock doesn't exist or placeholder source object
+    is locked to provided user.
+    """
+    content = placeholder.source
+    return content_is_unlocked(content, user)

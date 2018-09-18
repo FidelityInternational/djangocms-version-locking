@@ -6,7 +6,7 @@ from djangocms_versioning.test_utils.factories import (
     PlaceholderFactory,
 )
 
-from djangocms_version_locking.check import placeholder_content_is_unlocked
+from djangocms_version_locking.helpers import placeholder_content_is_unlocked
 from djangocms_version_locking.models import VersionLock
 
 

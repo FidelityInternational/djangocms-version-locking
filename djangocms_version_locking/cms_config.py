@@ -33,6 +33,12 @@ class VersionLockingCMSExtension(CMSAppExtension):
         """
         replace_admin_for_models(cms_config.version_lock_models)
 
+    def _lock_model_in_version_list(self, check_item, version_list):
+        for version_model in version_list:
+            if check_item == version_model.content_model:
+                return True
+        return False
+
     def handle_settings(self, cms_config):
 
         # Check that versioning is enabled
@@ -44,9 +50,15 @@ class VersionLockingCMSExtension(CMSAppExtension):
         if not isinstance(cms_config.version_lock_models, typing.List):
             raise ImproperlyConfigured("version_lock_models is not defined as a list")
 
+        for lock_model in cms_config.version_lock_models:
+            if not self._lock_model_in_version_list(lock_model, cms_config.versioning):
+                raise ImproperlyConfigured("%s is not defined in djangocms_versioning" % lock_model)
+
     def configure_app(self, cms_config):
-        self.handle_settings(cms_config)
-        self.handle_admin_classes(cms_config)
+
+        if hasattr(cms_config, 'versioning'):
+            self.handle_settings(cms_config)
+            self.handle_admin_classes(cms_config)
 
 
 class VersionLockingCMSConfig(CMSAppConfig):
@@ -56,8 +68,3 @@ class VersionLockingCMSConfig(CMSAppConfig):
     djangocms_version_locking_enabled = getattr(
         settings, 'VERSION_LOCKING_CMS_MODELS_ENABLED', True)
     version_lock_models = [PageContent, ]
-
-    # Versioning config
-    djangocms_versioning_enabled = getattr(
-        settings, 'VERSIONING_CMS_MODELS_ENABLED', True)
-    versioning = []

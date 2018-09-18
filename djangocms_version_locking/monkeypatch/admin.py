@@ -18,12 +18,9 @@ def new_save(old_save):
                 version=version,
                 created_by=version.created_by
             )
-        # A published version has no lock, an existing lock should be removed
-        elif version.state == constants.PUBLISHED:
-            try:
-                VersionLock.objects.get(version=version).delete()
-            except VersionLock.DoesNotExist:
-                pass
+        # A any other state than draft has no lock, an existing lock should be removed
+        elif version.state != constants.PUBLISHED:
+            VersionLock.objects.filter(version=version).delete()
         return version
     return inner
 models.Version.save = new_save(models.Version.save)

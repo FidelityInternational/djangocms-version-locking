@@ -22,7 +22,7 @@ class TestVersionsLockTestCase(CMSTestCase):
 
     def test_version_is_unlocked_for_publishing(self):
         """
-        A version lock is not present when a content version is in a published state
+        A version lock is not present when a content version is in a published or unpublished state
         """
         poll_version = factories.PollVersionFactory(state=constants.DRAFT)
         publish_url = self.get_admin_url(self.versionable.version_model_proxy, 'publish', poll_version.pk)
@@ -50,6 +50,9 @@ class TestVersionsLockTestCase(CMSTestCase):
         self.assertFalse(hasattr(updated_poll_version, 'versionlock'))
 
     def test_version_is_unlocked_for_archived(self):
+        """
+        A version lock is not present when a content version is in an archived state
+        """
         poll_version = factories.PollVersionFactory(state=constants.DRAFT)
         archive_url = self.get_admin_url(self.versionable.version_model_proxy, 'archive', poll_version.pk)
         user = self.get_staff_user_with_no_permissions()
@@ -79,7 +82,7 @@ class TestVersionCopyLocks(CMSTestCase):
 
     def test_published_version_copy_creates_draft_lock(self):
         """
-        A version lock is created for a new draft version copied from a draft version
+        A version lock is created for a published version copied from a draft version
         """
         user = factories.UserFactory()
         published_version = factories.PollVersionFactory(state=constants.PUBLISHED)

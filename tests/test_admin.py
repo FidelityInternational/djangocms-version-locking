@@ -105,3 +105,34 @@ class AdminLockedFieldTestCase(CMSTestCase):
         draft_version = factories.PollVersionFactory(state=DRAFT)
 
         self.assertEqual("Yes", self.hijacked_admin.locked(self.hijacked_admin, draft_version))
+
+
+class AdminPermissionTestCase(CMSTestCase):
+
+    def test_user_has_change_permission(self):
+        """
+        Test that the user who created the version has permission to change it
+        """
+        author = self.get_superuser()
+        content = factories.PollVersionFactory(state=DRAFT, created_by=author)
+        url = self.get_admin_url(PollContent, 'change', content.pk)
+
+        with self.login_user_context(author):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_does_not_have_change_permission(self):
+        """
+        Test that a different user from the  user who created
+        the version does not have permission to change it
+        """
+        author = factories.UserFactory()
+        editor = self.get_superuser()
+        content = factories.PollVersionFactory(state=DRAFT, created_by=author)
+        url = self.get_admin_url(PollContent, 'change', content.pk)
+
+        with self.login_user_context(editor):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 403)

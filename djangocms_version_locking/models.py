@@ -14,5 +14,6 @@ class VersionLock(models.Model):
     )
     version = models.OneToOneField(
         Version,
+        on_delete=models.CASCADE,
         verbose_name=_('version')
     )

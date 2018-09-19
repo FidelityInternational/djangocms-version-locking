@@ -1,8 +1,6 @@
 from djangocms_versioning.admin import VersioningAdminMixin
 from djangocms_versioning.models import Version
 
-from .helpers import content_is_unlocked
-
 
 class VersionLockAdminMixin(VersioningAdminMixin):
     """
@@ -15,6 +13,7 @@ class VersionLockAdminMixin(VersioningAdminMixin):
         If there’s a lock for edited object and if that lock belongs
         to the current user
         """
+        from .helpers import content_is_unlocked
 
         # User has permissions?
         has_permission = super().has_change_permission(request, content_obj)
@@ -22,4 +21,7 @@ class VersionLockAdminMixin(VersioningAdminMixin):
             return False
 
         # Check if the lock exists and belongs to the user
-        return content_is_unlocked(content_obj, request.user)
+        if content_obj:
+            return content_is_unlocked(content_obj, request.user)
+
+        return True

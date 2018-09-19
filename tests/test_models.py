@@ -1,7 +1,5 @@
 from cms.test_utils.testcases import CMSTestCase
 
-from djangocms_versioning.constants import DRAFT, PUBLISHED
-
 from djangocms_versioning import constants
 from djangocms_versioning.models import Version
 
@@ -18,7 +16,7 @@ class TestVersionsLockTestCase(CMSTestCase):
         """
         A version lock is present when a content version is in a draft state
         """
-        draft_version = factories.PollVersionFactory(state=DRAFT)
+        draft_version = factories.PollVersionFactory(state=constants.DRAFT)
 
         self.assertTrue(hasattr(draft_version, 'versionlock'))
 

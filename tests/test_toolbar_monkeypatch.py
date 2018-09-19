@@ -43,7 +43,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
 
     def test_not_render_edit_button_when_not_content_mode(self):
         user = self.get_superuser()
-        version = PageVersionFactory()
+        version = PageVersionFactory(created_by=user)
 
         toolbar = self._get_toolbar(version.content, user, edit_mode=True)
         toolbar.post_template_populate()
@@ -61,7 +61,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
             username='admin2',
             email='admin2@123.com',
         )
-        version = PageVersionFactory()
+        version = PageVersionFactory(created_by=user)
 
         toolbar = self._get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
@@ -79,7 +79,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         from cms.models import Page
 
         user = self.get_superuser()
-        version = PageVersionFactory()
+        version = PageVersionFactory(created_by=user)
 
         toolbar = self._get_toolbar(version.content, user, content_mode=True)
         toolbar.post_template_populate()

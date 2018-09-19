@@ -10,12 +10,9 @@ class VersionLockAdminMixin(VersioningAdminMixin):
 
     def has_change_permission(self, request, content_obj=None):
         """
-        If there’s a lock for edited object and if that lock belongs to current user
+        If there’s a lock for edited object and if that lock belongs
+        to the current user
         """
-        if content_obj is None:
-            return False
-
-        # FIXME: A different user to the author could have unlock permissions!!!!
         version = Version.objects.get_for_content(content_obj)
         if (
             hasattr(version, 'versionlock') and

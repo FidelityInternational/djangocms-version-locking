@@ -1,9 +1,12 @@
-from unittest import skip
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 
 from cms.test_utils.testcases import CMSTestCase
+
+from djangocms_versioning import admin as versioning_admin
+from djangocms_versioning.constants import DRAFT, PUBLISHED
 
 import djangocms_version_locking.helpers
 from djangocms_version_locking.admin import VersionLockAdminMixin
@@ -11,6 +14,7 @@ from djangocms_version_locking.helpers import (
     replace_admin_for_models,
     version_lock_admin_factory,
 )
+from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.models import (
     Answer,
     Poll,
@@ -74,3 +78,30 @@ class AdminReplaceVersioningTestCase(CMSTestCase):
         self.assertIn(self.model, self.site._registry)
         self.assertEqual(self.site._registry[self.model].__class__, version_admin)
 
+
+class AdminLockedFieldTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.hijacked_admin = versioning_admin.VersionAdmin
+
+    def test_version_admin_contains_locked_field(self):
+        """
+        The locked column exists in the admin field list
+        """
+        self.assertIn(_("locked"), self.hijacked_admin.list_display)
+
+    def test_version_lock_state_locked(self):
+        """
+        A published version does not have an entry in the locked column in the admin
+        """
+        published_version = factories.PollVersionFactory(state=PUBLISHED)
+
+        self.assertEqual("", self.hijacked_admin.locked(self.hijacked_admin, published_version))
+
+    def test_version_lock_state_unlocked(self):
+        """
+        A draft version does have an entry in the locked column in the admin
+        """
+        draft_version = factories.PollVersionFactory(state=DRAFT)
+
+        self.assertEqual("Yes", self.hijacked_admin.locked(self.hijacked_admin, draft_version))

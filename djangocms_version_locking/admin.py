@@ -1,8 +1,4 @@
-from django.contrib import admin
-
 from djangocms_versioning.admin import VersioningAdminMixin
-
-from .models import VersionLock
 
 
 class VersionLockAdminMixin(VersioningAdminMixin):
@@ -22,3 +18,4 @@ class VersionLockAdminMixin(VersioningAdminMixin):
     def has_delete_permission(self, request, obj=None):
         return False
     """
+

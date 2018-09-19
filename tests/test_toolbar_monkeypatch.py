@@ -10,8 +10,6 @@ from djangocms_versioning.test_utils.factories import (
     UserFactory,
 )
 
-from djangocms_version_locking.models import VersionLock
-
 
 class VersionToolbarOverrideTestCase(CMSTestCase):
 
@@ -45,11 +43,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
 
     def test_not_render_edit_button_when_not_content_mode(self):
         user = self.get_superuser()
-        version = PageVersionFactory()
-        VersionLock.objects.create(
-            version=version,
-            created_by=user,
-        )
+        version = PageVersionFactory(created_by=user)
 
         toolbar = self._get_toolbar(version.content, user, edit_mode=True)
         toolbar.post_template_populate()
@@ -67,11 +61,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
             username='admin2',
             email='admin2@123.com',
         )
-        version = PageVersionFactory()
-        VersionLock.objects.create(
-            version=version,
-            created_by=user,
-        )
+        version = PageVersionFactory(created_by=user)
 
         toolbar = self._get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
@@ -89,11 +79,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         from cms.models import Page
 
         user = self.get_superuser()
-        version = PageVersionFactory()
-        VersionLock.objects.create(
-            version=version,
-            created_by=user,
-        )
+        version = PageVersionFactory(created_by=user)
 
         toolbar = self._get_toolbar(version.content, user, content_mode=True)
         toolbar.post_template_populate()

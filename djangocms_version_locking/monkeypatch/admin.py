@@ -27,6 +27,7 @@ models.Version.save = new_save(models.Version.save)
 
 
 # VersionAdmin new locked field
+# FIXME: This will be an icon and will need to check for the existence of an icon.
 def locked(self, version):
     if hasattr(version, "versionlock"):
         return "Yes"

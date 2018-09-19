@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
+
+from djangocms_version_locking.models import VersionLock
 
 from .admin import VersionLockAdminMixin
 
@@ -43,3 +46,24 @@ def replace_admin_for_models(models, admin_site=None):
         except KeyError:
             continue
         _replace_admin_for_model(modeladmin, admin_site)
+
+
+def content_is_unlocked(content, user):
+    """Check if lock doesn't exist or object is locked to provided user.
+    """
+    try:
+        lock = VersionLock.objects.get(
+            version__content_type=ContentType.objects.get_for_model(content),
+            version__object_id=content.pk,
+        )
+    except VersionLock.DoesNotExist:
+        return True
+    return lock.created_by == user
+
+
+def placeholder_content_is_unlocked(placeholder, user):
+    """Check if lock doesn't exist or placeholder source object
+    is locked to provided user.
+    """
+    content = placeholder.source
+    return content_is_unlocked(content, user)

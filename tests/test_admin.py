@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.contrib import admin
+from django.test import RequestFactory
 from django.utils.translation import ugettext_lazy as _
 
 from cms.test_utils.testcases import CMSTestCase
@@ -88,7 +89,8 @@ class AdminLockedFieldTestCase(CMSTestCase):
         """
         The locked column exists in the admin field list
         """
-        self.assertIn(_("locked"), self.hijacked_admin.list_display)
+        request = RequestFactory().get('/admin/djangocms_versioning/pollcontentversion/')
+        self.assertIn(_("locked"), self.hijacked_admin.get_list_display(self.hijacked_admin, request))
 
     def test_version_lock_state_locked(self):
         """

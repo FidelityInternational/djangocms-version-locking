@@ -33,11 +33,14 @@ def locked(self, version):
         return "Yes"
     return ""
 locked.short_description = _('locked')
-
-
-# Replace the Version model admin class with a Versionlock class!
 admin.VersionAdmin.locked = locked
-# Add the new defined locked field
-created_by_index = admin.VersionAdmin.list_display.index('created_by')
-admin.VersionAdmin.list_display = admin.VersionAdmin.list_display[:created_by_index] + ('locked', ) + admin.VersionAdmin.list_display[created_by_index:]
 
+
+# Add the new defined locked field
+def get_list_display(func):
+    def inner(self, request):
+        list_display = func(self, request)
+        created_by_index = list_display.index('created_by')
+        return list_display[:created_by_index] + ('locked', ) + list_display[created_by_index:]
+    return inner
+admin.VersionAdmin.get_list_display = get_list_display(admin.VersionAdmin.get_list_display)

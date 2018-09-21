@@ -8,6 +8,7 @@ from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_versioning import admin as versioning_admin
 from djangocms_versioning.constants import DRAFT, PUBLISHED
+from djangocms_versioning.models import Version
 
 import djangocms_version_locking.helpers
 from djangocms_version_locking.admin import VersionLockAdminMixin
@@ -83,14 +84,15 @@ class AdminReplaceVersioningTestCase(CMSTestCase):
 class AdminLockedFieldTestCase(CMSTestCase):
 
     def setUp(self):
-        self.hijacked_admin = versioning_admin.VersionAdmin
+        site = admin.AdminSite()
+        self.hijacked_admin = versioning_admin.VersionAdmin(Version, site)
 
     def test_version_admin_contains_locked_field(self):
         """
         The locked column exists in the admin field list
         """
         request = RequestFactory().get('/admin/djangocms_versioning/pollcontentversion/')
-        self.assertIn(_("locked"), self.hijacked_admin.get_list_display(self.hijacked_admin, request))
+        self.assertIn(_("locked"), self.hijacked_admin.get_list_display(request))
 
     def test_version_lock_state_locked(self):
         """
@@ -98,7 +100,7 @@ class AdminLockedFieldTestCase(CMSTestCase):
         """
         published_version = factories.PollVersionFactory(state=PUBLISHED)
 
-        self.assertEqual("", self.hijacked_admin.locked(self.hijacked_admin, published_version))
+        self.assertEqual("", self.hijacked_admin.locked(published_version))
 
     def test_version_lock_state_unlocked(self):
         """
@@ -106,7 +108,7 @@ class AdminLockedFieldTestCase(CMSTestCase):
         """
         draft_version = factories.PollVersionFactory(state=DRAFT)
 
-        self.assertEqual("Yes", self.hijacked_admin.locked(self.hijacked_admin, draft_version))
+        self.assertEqual("Yes", self.hijacked_admin.locked(draft_version))
 
 
 class AdminPermissionTestCase(CMSTestCase):

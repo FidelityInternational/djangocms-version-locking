@@ -1,0 +1,6 @@
+{
+    "package-name": "djangocms-version-locking",
+    "installed-apps": [
+        "djangocms_version_locking"
+    ]
+}

@@ -1,3 +1,5 @@
+import types
+
 from django.utils.translation import ugettext_lazy as _
 
 from djangocms_versioning import admin, models, constants
@@ -44,3 +46,108 @@ def get_list_display(func):
         return list_display[:created_by_index] + ('locked', ) + list_display[created_by_index:]
     return inner
 admin.VersionAdmin.get_list_display = get_list_display(admin.VersionAdmin.get_list_display)
+
+
+
+#############################
+# Unlock view
+#############################
+
+## Urls
+from django.conf.urls import url
+
+from cms.utils.urlutils import admin_reverse
+from django.http import Http404, HttpResponseNotAllowed
+from django.contrib import messages
+from django.shortcuts import redirect
+
+from django.contrib.admin.utils import unquote
+
+
+def _unlock_view(self, request, object_id):
+    """
+
+    """
+    # This view always changes data so only POST requests should work
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'], _('This view only supports POST method.'))
+
+    # Check version exists
+    version = self.get_object(request, unquote(object_id))
+    if version is None:
+        return self._get_obj_does_not_exist_redirect(
+            request, self.model._meta, object_id)
+
+    # Raise 404 if not locked
+    if version.state != constants.DRAFT:
+        raise Http404
+    # Unlock the version
+    #version.unlock(request.user)
+    # Display message
+    messages.success(request, _("Version unlocked"))
+
+    # Redirect
+    url = admin_reverse('{app}_{model}_changelist'.format(
+        app=self.model._meta.app_label,
+        model=self.model._meta.model_name,
+    )) + '?grouper=' + str(version.grouper.pk)
+
+    return redirect(url)
+admin.VersionAdmin._unlock_view = _unlock_view
+
+
+def _get_urls(func):
+    def inner(self, *args, **kwargs):
+        url_list = func(self, *args, **kwargs)
+        info = self.model._meta.app_label, self.model._meta.model_name
+        url_list.insert(0,
+            url(
+                r'^(.+)/unlock/$',
+                self.admin_site.admin_view(self._unlock_view),
+                name='{}_{}_unlock'.format(*info),
+            )
+        )
+        return url_list
+    return inner
+admin.VersionAdmin.get_urls = _get_urls(admin.VersionAdmin.get_urls)
+
+
+#########################
+# Unlock Actions
+########################
+from django.template.loader import render_to_string
+
+from django.urls import reverse
+
+from ..helpers import content_is_unlocked
+
+old_get_state_actions = admin.VersionAdmin.get_state_actions
+
+
+def _get_unlock_link(self, obj, request, **kwargs):
+
+    if not obj.state == constants.DRAFT and not hasattr(obj, "versionlock"):
+        return ""
+
+    # May
+    if not content_is_unlocked(obj, request.user):
+        return ""
+
+    unlock_url = reverse('admin:{app}_{model}_unlock'.format(
+        app=obj._meta.app_label, model=self.model._meta.model_name,
+    ), args=(obj.pk,))
+
+    return render_to_string(
+        'djangocms_version_locking/admin/unlock_icon.html',
+        {'unlock_url': unlock_url}
+    )
+admin.VersionAdmin._get_unlock_link = _get_unlock_link
+
+
+def get_state_actions(func):
+    def inner(self, *args, **kwargs):
+        state_list = func(self, *args, **kwargs)
+        state_list.append(self._get_unlock_link)
+        return state_list
+    return inner
+admin.VersionAdmin.get_state_actions = get_state_actions(admin.VersionAdmin.get_state_actions)

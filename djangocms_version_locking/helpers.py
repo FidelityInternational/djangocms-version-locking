@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 
-from djangocms_version_locking.models import VersionLock
+from djangocms_versioning import constants
 
-from .admin import VersionLockAdminMixin
+from djangocms_version_locking.models import VersionLock
+from djangocms_version_locking.admin import VersionLockAdminMixin
 
 
 def version_lock_admin_factory(admin_class):
@@ -67,3 +68,20 @@ def placeholder_content_is_unlocked(placeholder, user):
     """
     content = placeholder.source
     return content_is_unlocked(content, user)
+
+
+def remove_version_lock(version):
+    """
+    Delete a version lock, handle when there are none available.
+    """
+    VersionLock.objects.filter(version=version).delete()
+
+
+def lock_can_be_removed_for_user(content, user):
+
+    # Check whether a lock exists
+    if content.state == constants.DRAFT and hasattr(content, "versionlock"):
+        # The user is the author, unlocking is irrelevant
+        if content.versionlock.created_by != user:
+            return True
+    return False

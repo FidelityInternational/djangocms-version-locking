@@ -121,8 +121,6 @@ def _get_unlock_link(self, obj, request):
     return render_to_string(
         'djangocms_version_locking/admin/unlock_disabled_icon.html',
     )
-
-
 admin.VersionAdmin._get_unlock_link = _get_unlock_link
 
 

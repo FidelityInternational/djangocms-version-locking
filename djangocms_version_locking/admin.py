@@ -22,5 +22,4 @@ class VersionLockAdminMixin(VersioningAdminMixin):
         # Check if the lock exists and belongs to the user
         if obj:
             return content_is_unlocked(obj, request.user)
-
         return True

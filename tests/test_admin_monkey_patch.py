@@ -157,7 +157,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
     def test_unlock_and_new_user_edit_creates_version_lock(self):
         """
         When a version is unlocked a different user (or the same) can then visit the edit link and take
-        ownership of the version and creates a vrsion lock for the new user
+        ownership of the version, this creates a version lock for the editing user
         """
         draft_version = factories.PollVersionFactory(created_by=self.user_author)
         draft_unlock_url = self.get_admin_url(self.versionable.version_model_proxy,

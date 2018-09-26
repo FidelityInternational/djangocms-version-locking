@@ -51,7 +51,7 @@ admin.VersionAdmin.locked = locked
 
 def get_list_display(func):
     """
-    Register the new locked field with the Versioning Admin
+    Register the locked field with the Versioning Admin
     """
     def inner(self, request):
         list_display = func(self, request)
@@ -100,7 +100,7 @@ admin.VersionAdmin._unlock_view = _unlock_view
 
 def _get_unlock_link(self, obj, request):
     """
-    Generate an unlock link for the Admin UI
+    Generate an unlock link for the Versioning Admin
     """
     # If the version is not draft no action should be present
     if obj.state != constants.DRAFT:
@@ -157,7 +157,7 @@ admin.VersionAdmin.get_state_actions = get_state_actions(admin.VersionAdmin.get_
 
 def edit_redirect_view(func):
     """
-    Override the Versioning Admin edit redirect to add a user as a version author if no locking exists
+    Override the Versioning Admin edit redirect to add a user as a version author if no lock exists
     """
     def inner(self, request, object_id):
 

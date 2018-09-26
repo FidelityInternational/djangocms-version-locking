@@ -26,8 +26,12 @@ class VersionLockUnlockTestCase(CMSTestCase):
         self.user_has_unlock_perms = self._create_user("user_has_unlock_perms", is_staff=True, is_superuser=False)
         self.versionable = PollsCMSConfig.versioning[0]
 
-        self.user_has_unlock_perms.user_permissions.add(Permission.objects.get(codename='delete_versionlock'))
-        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
+        # Set permissions
+        delete_permission = Permission.objects.get(codename='delete_versionlock')
+        self.user_has_unlock_perms.user_permissions.add(delete_permission)
+
+
+
 
     def test_unlock_view_redirects_404_when_not_draft(self):
         poll_version = factories.PollVersionFactory(state=constants.PUBLISHED, created_by=self.superuser)
@@ -46,7 +50,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
         with self.login_user_context(self.user_has_no_perms):
             response = self.client.post(unlock_url, follow=True)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
         # Fetch the latest state of this version
         updated_poll_version = Version.objects.get(pk=poll_version.pk)

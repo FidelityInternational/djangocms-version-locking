@@ -18,7 +18,7 @@ from ..models import VersionLock
 
 def new_save(old_save):
     """
-    Override the save method to add a version lock
+    Override the Versioning save method to add a version lock
     """
     def inner(version, **kwargs):
         old_save(version, **kwargs)
@@ -37,10 +37,9 @@ def new_save(old_save):
 models.Version.save = new_save(models.Version.save)
 
 
-# FIXME: This will be an icon and will need to check for the existence of an icon.
 def locked(self, version):
     """
-    Generate an locked field for the Admin UI
+    Generate an locked field for Versioning Admin
     """
     if hasattr(version, "versionlock"):
         return render_to_string('djangocms_version_locking/admin/locked_icon.html')
@@ -49,8 +48,10 @@ locked.short_description = _('locked')
 admin.VersionAdmin.locked = locked
 
 
-# Add the new defined locked field
 def get_list_display(func):
+    """
+    Register the new locked field with the Versioning Admin
+    """
     def inner(self, request):
         list_display = func(self, request)
         created_by_index = list_display.index('created_by')
@@ -61,7 +62,7 @@ admin.VersionAdmin.get_list_display = get_list_display(admin.VersionAdmin.get_li
 
 def _unlock_view(self, request, object_id):
     """
-    Unlock a locked version and inherit the lock
+    Unlock a locked version
     """
     # This view always changes data so only POST requests should work
     if request.method != 'POST':
@@ -78,7 +79,7 @@ def _unlock_view(self, request, object_id):
         raise Http404
 
     # Check that the user has unlock permission
-    if not request.user.has_perm('djangocms_version_locking.can_delete_version_lock'):
+    if not request.user.has_perm('djangocms_version_locking.delete_versionlock'):
         return HttpResponseForbidden(force_text(_("You do not have permission to remove the version lock")))
 
     # Unlock the version
@@ -104,13 +105,8 @@ def _get_unlock_link(self, obj, request):
     if not lock_can_be_removed_for_user(obj, request.user):
         return ""
 
-
-    #FIXME: DEBUGGING PERMISSIONS, They're set but can't be retrieved
-    from django.contrib.auth.models import Permission
-    permissions = Permission.objects.filter(user=request.user)
-
     # Check that the user has unlock permission
-    if not request.user.has_perm('djangocms_version_locking.can_delete_version_lock'):
+    if not request.user.has_perm('djangocms_version_locking.delete_versionlock'):
         return ""
 
     unlock_url = reverse('admin:{app}_{model}_unlock'.format(

@@ -1,23 +1,32 @@
 from cms.test_utils.testcases import CMSTestCase
 
 from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 
 from djangocms_versioning import constants
 from djangocms_versioning.models import Version
 
+from djangocms_version_locking.models import VersionLock
 from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
 
 
+def _content_has_lock(content):
+    """
+    Check for a lock entry from content
+    """
+    try:
+        VersionLock.objects.get(
+            version__content_type=ContentType.objects.get_for_model(content),
+            version__object_id=content.pk,
+        )
+    except VersionLock.DoesNotExist:
+        return False
+    return True
+
+
 class VersionLockUnlockTestCase(CMSTestCase):
-
-    """
-    FIXME: Possible that a user can have the ability to create a version and publish it but there is an issue where the
-            permissiosn to delete a version lock may prevent them from completing the task.
-
-            It's ok as long as the permssion isn't enforced on the delete on publish which it doesn't currently!!
-    """
 
     def setUp(self):
         self.superuser = self.get_superuser()
@@ -29,9 +38,6 @@ class VersionLockUnlockTestCase(CMSTestCase):
         # Set permissions
         delete_permission = Permission.objects.get(codename='delete_versionlock')
         self.user_has_unlock_perms.user_permissions.add(delete_permission)
-
-
-
 
     def test_unlock_view_redirects_404_when_not_draft(self):
         poll_version = factories.PollVersionFactory(state=constants.PUBLISHED, created_by=self.superuser)
@@ -147,3 +153,41 @@ class VersionLockUnlockTestCase(CMSTestCase):
         self.assertContains(response, draft_unlock_control, html=True)
         # The published version exists
         self.assertNotContains(response, published_unlock_control, html=True)
+
+    def test_unlock_and_new_user_edit_creates_version_lock(self):
+        """
+        When a version is unlocked a different user (or the same) can then visit the edit link and take
+        ownership of the version and creates a vrsion lock for the new user
+        """
+        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+        draft_unlock_url = self.get_admin_url(self.versionable.version_model_proxy,
+                                              'unlock', draft_version.pk)
+
+        # The version is owned by the author
+        self.assertEqual(draft_version.created_by, self.user_author)
+        # The version lock exists and is owned by the author
+        self.assertEqual(draft_version.versionlock.created_by, self.user_author)
+
+        # Unlock the version with a different user with unlock permissions
+        with self.login_user_context(self.user_has_unlock_perms):
+            self.client.post(draft_unlock_url, follow=True)
+
+        updated_draft_version = Version.objects.get(pk=draft_version.pk)
+        updated_draft_edit_url = self.get_admin_url(self.versionable.version_model_proxy,
+                                              'edit_redirect', updated_draft_version.pk)
+
+        # The version is still owned by the author
+        self.assertTrue(updated_draft_version.created_by, self.user_author)
+        # The version lock does not exist
+        self.assertFalse(hasattr(updated_draft_version, 'versionlock'))
+
+        # Visit the edit page with a user without unlock permissions
+        with self.login_user_context(self.user_has_no_perms):
+            self.client.post(updated_draft_edit_url)
+
+        updated_draft_version = Version.objects.get(pk=draft_version.pk)
+
+        # The version is now owned by the user with no permissions
+        self.assertTrue(updated_draft_version.created_by, self.user_has_no_perms)
+        # The version lock exists and is now owned by the user with no permissions
+        self.assertEqual(updated_draft_version.versionlock.created_by, self.user_has_no_perms)

@@ -70,18 +70,32 @@ def placeholder_content_is_unlocked(placeholder, user):
     return content_is_unlocked(content, user)
 
 
+def create_version_lock(version, user):
+    """
+    Create a version lock
+    """
+    VersionLock.objects.create(
+        version=version,
+        created_by=user
+    )
+
+
 def remove_version_lock(version):
     """
-    Delete a version lock, handle when there are none available.
+    Delete a version lock, handles when there are none available.
     """
     VersionLock.objects.filter(version=version).delete()
 
 
-def lock_can_be_removed_for_user(content, user):
+def is_draft_locked(version):
+    """
+    Determine if content is draft and locked
+    """
+    return version.state == constants.DRAFT and hasattr(version, "versionlock")
 
-    # Check whether a lock exists
-    if content.state == constants.DRAFT and hasattr(content, "versionlock"):
-        # The user is the author, unlocking is irrelevant
-        if content.versionlock.created_by != user:
-            return True
-    return False
+
+def is_draft_unlocked(version):
+    """
+    Determine if the version is draft and unlocked
+    """
+    return version.state == constants.DRAFT and not hasattr(version, 'versionlock')

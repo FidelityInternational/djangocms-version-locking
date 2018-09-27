@@ -1,8 +1,10 @@
 from cms.test_utils.testcases import CMSTestCase
 
+from django.contrib import admin
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
+from django.test import RequestFactory
 
 from djangocms_versioning import constants
 from djangocms_versioning.models import Version
@@ -193,65 +195,37 @@ class VersionLockUnlockTestCase(CMSTestCase):
         self.assertEqual(updated_draft_version.versionlock.created_by, self.user_has_no_perms)
 
 
-class VersionLockEditStateTestCase(CMSTestCase):
+class VersionLockEditActionStateTestCase(CMSTestCase):
 
     def setUp(self):
+        self.superuser = self.get_superuser()
         self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
-        self.user_has_no_perms = self._create_user("user_has_no_perms", is_staff=True, is_superuser=False)
         self.versionable = PollsCMSConfig.versioning[0]
+        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
 
-
-
-    def test_version_admin_edit_action_link_states(self):
+    def test_edit_action_link_enabled_state(self):
         """
-        The versioning admin displays the correct edit control for the author, the overriden
-        disabled control is displayed for different users i.e. not the author or locked owner
+        The edit action is active
         """
-        draft_version = factories.PollVersionFactory(created_by=self.user_author)
-        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
-              + '?grouper=' + str(draft_version.content.poll.pk)
-        edit_disabled_control = render_to_string(
-            'djangocms_version_locking/admin/edit_disabled_icon.html'
-        )
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+        otheruser_request = RequestFactory()
+        otheruser_request.user = self.superuser
 
-        # Login as the author, the edit button should exist
-        with self.login_user_context(self.user_author):
-            author_response = self.client.post(changelist_url, follow=True)
+        actual_enabled_state = self.version_admin._get_edit_link(version, author_request)
 
-        self.assertNotContains(author_response, edit_disabled_control)
+        self.assertNotIn("inactive", actual_enabled_state)
 
-        # Login as a different user, the disabled edit button override should not exist
-        with self.login_user_context(self.user_has_no_perms):
-            other_response = self.client.post(changelist_url, follow=True)
-
-        self.assertContains(other_response, edit_disabled_control)
-
-
-
-
-
-    def test_edit_action_link_is_disabled(self):
+    def test_edit_action_link_disabled_state(self):
         """
-        The versioning admin displays the correct edit control for the author, the overriden
-        disabled control is displayed for different users i.e. not the author or locked owner
+        The edit action is disabled for a different user to the locked user
         """
-        draft_version = factories.PollVersionFactory(created_by=self.user_author)
-        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
-              + '?grouper=' + str(draft_version.content.poll.pk)
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+        otheruser_request = RequestFactory()
+        otheruser_request.user = self.superuser
+        actual_disabled_state = self.version_admin._get_edit_link(version, otheruser_request)
 
-        draft_edit_url = self.get_admin_url(self.versionable.version_model_proxy,
-                                                    'edit_redirect', draft_version.pk)
-        enabled_state = "<a class=\"btn cms-versioning-action-btn js-versioning-action\" href=\"%s\" title=\"Edit\">" % draft_edit_url
-        disabled_state = "<a class=\"btn cms-versioning-action-btn inactive\" title=\"Edit\">"
-
-        # Login as the author, the edit button should be enabled
-        with self.login_user_context(self.user_author):
-            author_response = self.client.post(changelist_url, follow=True)
-
-        self.assertContains(author_response, enabled_state)
-
-        # Login as a different user, the disabled edit button should be disabled
-        with self.login_user_context(self.user_has_no_perms):
-            other_response = self.client.post(changelist_url, follow=True)
-
-        self.assertContains(other_response, disabled_state)
+        self.assertIn("inactive", actual_disabled_state)

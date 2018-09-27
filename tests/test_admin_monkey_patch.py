@@ -203,7 +203,7 @@ class VersionLockEditStateTestCase(CMSTestCase):
     def test_version_admin_view_edit_link_is_disabled(self):
         """
         The versioning admin displays the correct edit control for the author, the overriden
-        disabled staet is displayed for different users i.e. not the author or locked owner
+        disabled control is displayed for different users i.e. not the author or locked owner
         """
         draft_version = factories.PollVersionFactory(created_by=self.user_author)
         changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \

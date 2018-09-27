@@ -15,7 +15,8 @@ from djangocms_versioning import admin, models, constants
 from djangocms_version_locking.helpers import (
     create_version_lock,
     remove_version_lock,
-    version_is_locked
+    version_is_locked,
+    version_is_unlocked_for_user
 )
 
 
@@ -169,4 +170,20 @@ def _get_edit_redirect_version(func):
     return inner
 admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
     admin.VersionAdmin._get_edit_redirect_version
+)
+
+
+def _get_edit_link(func):
+    """
+    Override the Versioning Admin edit action button to a disabled state
+    """
+    def inner(self, obj, request):
+        if obj.state == constants.DRAFT and not version_is_unlocked_for_user(obj, request.user):
+            return render_to_string(
+                'djangocms_version_locking/admin/edit_disabled_icon.html'
+            )
+        return func(self, obj, request)
+    return inner
+admin.VersionAdmin._get_edit_link = _get_edit_link(
+    admin.VersionAdmin._get_edit_link
 )

@@ -191,3 +191,36 @@ class VersionLockUnlockTestCase(CMSTestCase):
         self.assertTrue(updated_draft_version.created_by, self.user_has_no_perms)
         # The version lock exists and is now owned by the user with no permissions
         self.assertEqual(updated_draft_version.versionlock.created_by, self.user_has_no_perms)
+
+
+class VersionLockEditStateTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
+        self.user_has_no_perms = self._create_user("user_has_no_perms", is_staff=True, is_superuser=False)
+        self.versionable = PollsCMSConfig.versioning[0]
+
+    def test_version_admin_view_edit_link_is_disabled(self):
+        """
+        The versioning admin displays the correct edit control for the author, the overriden
+        disabled staet is displayed for different users i.e. not the author or locked owner
+        """
+        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
+              + '?grouper=' + str(draft_version.content.poll.pk)
+        edit_disabled_control = render_to_string(
+            'djangocms_version_locking/admin/edit_disabled_icon.html'
+        )
+
+        # Login as the author, the edit button should exist
+        with self.login_user_context(self.user_author):
+            author_response = self.client.post(changelist_url, follow=True)
+
+        self.assertNotContains(author_response, edit_disabled_control)
+
+        # Login as a different user, the disabled edit button override should not exist
+        with self.login_user_context(self.user_has_no_perms):
+            other_response = self.client.post(changelist_url, follow=True)
+
+        self.assertContains(other_response, edit_disabled_control)
+

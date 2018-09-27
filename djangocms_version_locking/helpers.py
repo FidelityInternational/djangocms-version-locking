@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 
-from djangocms_version_locking.models import VersionLock
+from djangocms_versioning import constants
 
 from .admin import VersionLockAdminMixin
+from .models import VersionLock
 
 
 def version_lock_admin_factory(admin_class):
@@ -48,7 +49,7 @@ def replace_admin_for_models(models, admin_site=None):
         _replace_admin_for_model(modeladmin, admin_site)
 
 
-def content_is_unlocked(content, user):
+def content_is_unlocked_for_user(content, user):
     """Check if lock doesn't exist or object is locked to provided user.
     """
     try:
@@ -61,9 +62,39 @@ def content_is_unlocked(content, user):
     return lock.created_by == user
 
 
-def placeholder_content_is_unlocked(placeholder, user):
+def placeholder_content_is_unlocked_for_user(placeholder, user):
     """Check if lock doesn't exist or placeholder source object
     is locked to provided user.
     """
     content = placeholder.source
-    return content_is_unlocked(content, user)
+    return content_is_unlocked_for_user(content, user)
+
+
+def create_version_lock(version, user):
+    """
+    Create a version lock
+    """
+    return VersionLock.objects.create(
+        version=version,
+        created_by=user
+    )
+
+
+def remove_version_lock(version):
+    """
+    Delete a version lock, handles when there are none available.
+    """
+    return VersionLock.objects.filter(version=version).delete()
+
+
+def version_is_locked(version):
+    """
+    Determine if a version is locked
+    """
+    return getattr(version, "versionlock", None)
+
+def is_draft_unlocked(version):
+    """
+    Determine if the version is draft and unlocked
+    """
+    return version.state == constants.DRAFT and not version_is_locked(version)

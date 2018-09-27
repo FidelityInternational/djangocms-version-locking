@@ -12,7 +12,7 @@ class VersionLockAdminMixin(VersioningAdminMixin):
         If there’s a lock for edited object and if that lock belongs
         to the current user
         """
-        from .helpers import content_is_unlocked
+        from .helpers import content_is_unlocked_for_user
 
         # User has permissions?
         has_permission = super().has_change_permission(request, obj)
@@ -21,6 +21,5 @@ class VersionLockAdminMixin(VersioningAdminMixin):
 
         # Check if the lock exists and belongs to the user
         if obj:
-            return content_is_unlocked(obj, request.user)
-
+            return content_is_unlocked_for_user(obj, request.user)
         return True

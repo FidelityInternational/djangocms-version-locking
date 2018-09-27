@@ -4,7 +4,7 @@ from cms.toolbar.items import ButtonList
 
 from djangocms_versioning.cms_toolbars import VersioningToolbar
 
-from djangocms_version_locking.helpers import content_is_unlocked
+from djangocms_version_locking.helpers import content_is_unlocked_for_user
 
 
 def new_edit_button(func):
@@ -14,7 +14,7 @@ def new_edit_button(func):
             return
 
         # Check whether current toolbar object has a version lock.
-        if content_is_unlocked(self.toolbar.obj, self.request.user):
+        if content_is_unlocked_for_user(self.toolbar.obj, self.request.user):
             # No version lock. Call original func to render edit button.
             func(self, **kwargs)
             return

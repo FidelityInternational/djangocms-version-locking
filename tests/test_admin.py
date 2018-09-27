@@ -104,11 +104,11 @@ class AdminLockedFieldTestCase(CMSTestCase):
 
     def test_version_lock_state_unlocked(self):
         """
-        A draft version does have an entry in the locked column in the admin
+        A draft version does have an entry in the locked column in the  and is not empty
         """
         draft_version = factories.PollVersionFactory(state=DRAFT)
 
-        self.assertEqual("Yes", self.hijacked_admin.locked(draft_version))
+        self.assertNotEqual("", self.hijacked_admin.locked(draft_version))
 
 
 class AdminPermissionTestCase(CMSTestCase):

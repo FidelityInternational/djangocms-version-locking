@@ -93,8 +93,9 @@ def version_is_locked(version):
     """
     return getattr(version, "versionlock", None)
 
-def is_draft_unlocked(version):
+
+def version_is_unlocked_for_user(version, user):
+    """Check if lock doesn't exist for a version object or is locked to provided user.
     """
-    Determine if the version is draft and unlocked
-    """
-    return version.state == constants.DRAFT and not version_is_locked(version)
+    lock = version_is_locked(version)
+    return lock is None or lock.created_by == user

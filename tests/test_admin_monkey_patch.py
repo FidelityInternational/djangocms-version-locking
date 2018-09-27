@@ -1,8 +1,10 @@
 from cms.test_utils.testcases import CMSTestCase
 
+from django.contrib import admin
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
+from django.test import RequestFactory
 
 from djangocms_versioning import constants
 from djangocms_versioning.models import Version
@@ -191,3 +193,39 @@ class VersionLockUnlockTestCase(CMSTestCase):
         self.assertTrue(updated_draft_version.created_by, self.user_has_no_perms)
         # The version lock exists and is now owned by the user with no permissions
         self.assertEqual(updated_draft_version.versionlock.created_by, self.user_has_no_perms)
+
+
+class VersionLockEditActionStateTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.superuser = self.get_superuser()
+        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
+        self.versionable = PollsCMSConfig.versioning[0]
+        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
+
+    def test_edit_action_link_enabled_state(self):
+        """
+        The edit action is active
+        """
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+        otheruser_request = RequestFactory()
+        otheruser_request.user = self.superuser
+
+        actual_enabled_state = self.version_admin._get_edit_link(version, author_request)
+
+        self.assertNotIn("inactive", actual_enabled_state)
+
+    def test_edit_action_link_disabled_state(self):
+        """
+        The edit action is disabled for a different user to the locked user
+        """
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+        otheruser_request = RequestFactory()
+        otheruser_request.user = self.superuser
+        actual_disabled_state = self.version_admin._get_edit_link(version, otheruser_request)
+
+        self.assertIn("inactive", actual_disabled_state)

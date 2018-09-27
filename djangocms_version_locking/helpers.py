@@ -98,6 +98,4 @@ def version_is_unlocked_for_user(version, user):
     """Check if lock doesn't exist for a version object or is locked to provided user.
     """
     lock = version_is_locked(version)
-    if lock is None:
-        return True
-    return lock.created_by == user
+    return (lock is None) or lock.created_by == user

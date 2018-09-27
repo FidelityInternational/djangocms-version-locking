@@ -49,7 +49,7 @@ def replace_admin_for_models(models, admin_site=None):
         _replace_admin_for_model(modeladmin, admin_site)
 
 
-def content_is_unlocked(content, user):
+def content_is_unlocked_for_user(content, user):
     """Check if lock doesn't exist or object is locked to provided user.
     """
     try:
@@ -62,12 +62,12 @@ def content_is_unlocked(content, user):
     return lock.created_by == user
 
 
-def placeholder_content_is_unlocked(placeholder, user):
+def placeholder_content_is_unlocked_for_user(placeholder, user):
     """Check if lock doesn't exist or placeholder source object
     is locked to provided user.
     """
     content = placeholder.source
-    return content_is_unlocked(content, user)
+    return content_is_unlocked_for_user(content, user)
 
 
 def create_version_lock(version, user):
@@ -84,19 +84,17 @@ def remove_version_lock(version):
     """
     Delete a version lock, handles when there are none available.
     """
-    # Return False if none deleted or a count of objects deleted
-    return VersionLock.objects.filter(version=version).delete()[0]
+    return VersionLock.objects.filter(version=version).delete()
 
 
-def is_draft_locked(version):
+def version_is_locked(version):
     """
-    Determine if content is draft and locked
+    Determine if a version is locked
     """
-    return version.state == constants.DRAFT and hasattr(version, "versionlock")
-
+    return getattr(version, "versionlock", None)
 
 def is_draft_unlocked(version):
     """
     Determine if the version is draft and unlocked
     """
-    return version.state == constants.DRAFT and not hasattr(version, 'versionlock')
+    return version.state == constants.DRAFT and not version_is_locked(version)

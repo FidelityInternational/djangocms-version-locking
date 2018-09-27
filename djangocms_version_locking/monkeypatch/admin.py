@@ -14,9 +14,8 @@ from djangocms_versioning import admin, models, constants
 
 from djangocms_version_locking.helpers import (
     create_version_lock,
-    is_draft_locked,
-    is_draft_unlocked,
-    remove_version_lock
+    remove_version_lock,
+    version_is_locked
 )
 
 
@@ -27,7 +26,7 @@ def new_save(old_save):
     def inner(version, **kwargs):
         old_save(version, **kwargs)
         # A draft version is locked by default
-        if is_draft_unlocked(version):
+        if version.state == constants.DRAFT and not version_is_locked(version):
             # create a lock
             create_version_lock(version, version.created_by)
         # A any other state than draft has no lock, an existing lock should be removed
@@ -42,7 +41,7 @@ def locked(self, version):
     """
     Generate an locked field for Versioning Admin
     """
-    if is_draft_locked(version):
+    if version.state == constants.DRAFT and version_is_locked(version):
         return render_to_string('djangocms_version_locking/admin/locked_icon.html')
     return ""
 locked.short_description = _('locked')
@@ -108,7 +107,7 @@ def _get_unlock_link(self, obj, request):
 
     # Check whether the lock can be removed
     # Check that the user has unlock permission
-    if is_draft_locked(obj) and request.user.has_perm('djangocms_version_locking.delete_versionlock'):
+    if version_is_locked(obj) and request.user.has_perm('djangocms_version_locking.delete_versionlock'):
         unlock_url = reverse('admin:{app}_{model}_unlock'.format(
             app=obj._meta.app_label, model=self.model._meta.model_name,
         ), args=(obj.pk,))

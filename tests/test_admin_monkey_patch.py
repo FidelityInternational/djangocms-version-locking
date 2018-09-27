@@ -200,7 +200,9 @@ class VersionLockEditStateTestCase(CMSTestCase):
         self.user_has_no_perms = self._create_user("user_has_no_perms", is_staff=True, is_superuser=False)
         self.versionable = PollsCMSConfig.versioning[0]
 
-    def test_version_admin_view_edit_link_is_disabled(self):
+
+
+    def test_version_admin_edit_action_link_states(self):
         """
         The versioning admin displays the correct edit control for the author, the overriden
         disabled control is displayed for different users i.e. not the author or locked owner
@@ -224,3 +226,32 @@ class VersionLockEditStateTestCase(CMSTestCase):
 
         self.assertContains(other_response, edit_disabled_control)
 
+
+
+
+
+    def test_edit_action_link_is_disabled(self):
+        """
+        The versioning admin displays the correct edit control for the author, the overriden
+        disabled control is displayed for different users i.e. not the author or locked owner
+        """
+        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
+              + '?grouper=' + str(draft_version.content.poll.pk)
+
+        draft_edit_url = self.get_admin_url(self.versionable.version_model_proxy,
+                                                    'edit_redirect', draft_version.pk)
+        enabled_state = "<a class=\"btn cms-versioning-action-btn js-versioning-action\" href=\"%s\" title=\"Edit\">" % draft_edit_url
+        disabled_state = "<a class=\"btn cms-versioning-action-btn inactive\" title=\"Edit\">"
+
+        # Login as the author, the edit button should be enabled
+        with self.login_user_context(self.user_author):
+            author_response = self.client.post(changelist_url, follow=True)
+
+        self.assertContains(author_response, enabled_state)
+
+        # Login as a different user, the disabled edit button should be disabled
+        with self.login_user_context(self.user_has_no_perms):
+            other_response = self.client.post(changelist_url, follow=True)
+
+        self.assertContains(other_response, disabled_state)

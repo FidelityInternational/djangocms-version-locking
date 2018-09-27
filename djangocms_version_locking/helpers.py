@@ -3,8 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from djangocms_versioning import constants
 
-from djangocms_version_locking.models import VersionLock
-from djangocms_version_locking.admin import VersionLockAdminMixin
+from .admin import VersionLockAdminMixin
+from .models import VersionLock
 
 
 def version_lock_admin_factory(admin_class):
@@ -74,7 +74,7 @@ def create_version_lock(version, user):
     """
     Create a version lock
     """
-    VersionLock.objects.create(
+    return VersionLock.objects.create(
         version=version,
         created_by=user
     )
@@ -84,7 +84,8 @@ def remove_version_lock(version):
     """
     Delete a version lock, handles when there are none available.
     """
-    VersionLock.objects.filter(version=version).delete()
+    # Return False if none deleted or a count of objects deleted
+    return VersionLock.objects.filter(version=version).delete()[0]
 
 
 def is_draft_locked(version):

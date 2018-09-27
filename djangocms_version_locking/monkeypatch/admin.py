@@ -155,29 +155,19 @@ def get_state_actions(func):
 admin.VersionAdmin.get_state_actions = get_state_actions(admin.VersionAdmin.get_state_actions)
 
 
-def edit_redirect_view(func):
+def _get_edit_redirect_version(func):
     """
     Override the Versioning Admin edit redirect to add a user as a version author if no lock exists
     """
     def inner(self, request, object_id):
-
-        # Duplicated checks to ensure thta we aren't changing anything that would be invalid
-        # This view always changes data so only POST requests should work
-        if request.method != 'POST':
-            return HttpResponseNotAllowed(['POST'], _('This view only supports POST method.'))
-
-        version = self._get_edit_redirect_version(request, object_id)
-
-        if version is None:
-            raise Http404
-
-        # If the version is a draft and has no lock
-        if is_draft_unlocked(version):
+        version = func(self, request, object_id)
+        if version is not None:
             # Add the current user as the version author
             # Saving the version will Add a lock to the current user editing now it's in an unlocked state
             version.created_by = request.user
             version.save()
-
-        return func(self, request, object_id)
+        return version
     return inner
-admin.VersionAdmin.edit_redirect_view = edit_redirect_view(admin.VersionAdmin.edit_redirect_view)
+admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
+    admin.VersionAdmin._get_edit_redirect_version
+)

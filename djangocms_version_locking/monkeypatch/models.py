@@ -27,6 +27,8 @@ def new_save(old_save):
             remove_version_lock(version)
         return version
     return inner
+
+
 models.Version.save = new_save(models.Version.save)
 
 

@@ -4,10 +4,15 @@ import djangocms_version_locking
 
 
 INSTALL_REQUIREMENTS = [
-    'Django>=1.11,<2.1',
-    'django-cms>=3.5',
+    'Django>=1.11,<3.0',
+    'djangocms_versioning',
+    'django-cms',
 ]
 
+TEST_REQUIREMENTS = [
+    'djangocms_text_ckeditor',
+    'factory_boy'
+]
 
 setup(
     name='djangocms-version-locking',
@@ -26,7 +31,14 @@ setup(
     install_requires=INSTALL_REQUIREMENTS,
     author='Fidelity International',
     test_suite='test_settings.run',
+    tests_require=TEST_REQUIREMENTS,
     url='http://github.com/divio/djangocms-version-locking',
     license='BSD',
-    zip_safe=False
+    zip_safe=False,
+    dependency_links=[
+        'http://github.com/divio/django-cms/tarball/release/4.0.x#egg=django-cms',
+        'http://github.com/divio/djangocms-versioning/tarball/master#egg=djangocms-versioning',
+        # required because it is a dependency in djangocms-versioning. Issue created to remove this dependency
+        'http://github.com/divio/djangocms-text-ckeditor/tarball/support/4.0.x#egg=djangocms-text-ckeditor',
+    ]
 )

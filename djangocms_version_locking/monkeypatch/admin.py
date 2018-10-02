@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from cms.utils.urlutils import admin_reverse
 
 from djangocms_versioning import admin, models, constants
+from djangocms_versioning.helpers import version_list_url
 
 from djangocms_version_locking.helpers import (
     create_version_lock,
@@ -89,11 +90,7 @@ def _unlock_view(self, request, object_id):
     messages.success(request, _("Version unlocked"))
 
     # Redirect
-    url = admin_reverse('{app}_{model}_changelist'.format(
-        app=self.model._meta.app_label,
-        model=self.model._meta.model_name,
-    )) + '?grouper=' + str(version.grouper.pk)
-
+    url = version_list_url(version.content)
     return redirect(url)
 admin.VersionAdmin._unlock_view = _unlock_view
 
@@ -103,23 +100,25 @@ def _get_unlock_link(self, obj, request):
     Generate an unlock link for the Versioning Admin
     """
     # If the version is not draft no action should be present
-    if obj.state != constants.DRAFT:
+    if obj.state != constants.DRAFT or not version_is_locked(obj):
         return ""
 
+    disabled = True
     # Check whether the lock can be removed
     # Check that the user has unlock permission
     if version_is_locked(obj) and request.user.has_perm('djangocms_version_locking.delete_versionlock'):
-        unlock_url = reverse('admin:{app}_{model}_unlock'.format(
-            app=obj._meta.app_label, model=self.model._meta.model_name,
-        ), args=(obj.pk,))
+        disabled = False
 
-        return render_to_string(
-            'djangocms_version_locking/admin/unlock_icon.html',
-            {'unlock_url': unlock_url}
-        )
+    unlock_url = reverse('admin:{app}_{model}_unlock'.format(
+        app=obj._meta.app_label, model=self.model._meta.model_name,
+    ), args=(obj.pk,))
 
     return render_to_string(
-        'djangocms_version_locking/admin/unlock_disabled_icon.html',
+        'djangocms_version_locking/admin/unlock_icon.html',
+        {
+            'unlock_url': unlock_url,
+            'disabled': disabled
+        }
     )
 admin.VersionAdmin._get_unlock_link = _get_unlock_link
 

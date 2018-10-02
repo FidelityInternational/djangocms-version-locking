@@ -1,5 +1,9 @@
 {% load static i18n %}
-<a class="btn cms-versioning-action-btn js-versioning-action" href="{{ unlock_url }}" title="{% trans "Unlock" %}">
-    {% trans "Unlock" %}
-</a>
 
+{% if disabled %}
+<a class="btn cms-versioning-action-btn inactive" title="{% trans "Unlock" %}">
+{% else %}
+<a class="btn cms-versioning-action-btn js-versioning-action" href="{{ unlock_url }}" title="{% trans "Unlock" %}">
+{% endif %}
+    <img src="{% static 'djangocms_version_locking/svg/unlock.svg' %}">
+</a>

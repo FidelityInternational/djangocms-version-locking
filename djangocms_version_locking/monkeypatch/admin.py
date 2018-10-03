@@ -28,9 +28,10 @@ def new_save(old_save):
     def inner(version, **kwargs):
         old_save(version, **kwargs)
         # A draft version is locked by default
-        if version.state == constants.DRAFT and not version_is_locked(version):
-            # create a lock
-            create_version_lock(version, version.created_by)
+        if version.state == constants.DRAFT:
+            if not version_is_locked(version):
+                # create a lock
+                create_version_lock(version, version.created_by)
         # A any other state than draft has no lock, an existing lock should be removed
         else:
             remove_version_lock(version)

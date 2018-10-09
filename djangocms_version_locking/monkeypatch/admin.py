@@ -8,11 +8,10 @@ from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
-from cms.utils.urlutils import admin_reverse
-
 from djangocms_versioning import admin, models, constants
 from djangocms_versioning.helpers import version_list_url
 
+from djangocms_version_locking.emails import notify_version_author_version_unlocked
 from djangocms_version_locking.helpers import (
     create_version_lock,
     remove_version_lock,
@@ -89,6 +88,9 @@ def _unlock_view(self, request, object_id):
     remove_version_lock(version)
     # Display message
     messages.success(request, _("Version unlocked"))
+
+    # Send an email notification
+    notify_version_author_version_unlocked(version, request.user)
 
     # Redirect
     url = version_list_url(version.content)

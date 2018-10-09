@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
-
-from djangocms_versioning import constants
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.encoding import force_text
 
 from .admin import VersionLockAdminMixin
 from .models import VersionLock
@@ -99,3 +101,26 @@ def version_is_unlocked_for_user(version, user):
     """
     lock = version_is_locked(version)
     return lock is None or lock.created_by == user
+
+
+def send_email(
+    recipients,
+    subject,
+    template,
+    template_context
+):
+    """
+    Send emails using locking templates
+    """
+
+    template = 'djangocms_version_locking/emails/{}'.format(template)
+    subject = force_text(subject)
+    content = render_to_string(template, template_context)
+
+    message = EmailMessage(
+        subject=subject,
+        body=content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=recipients,
+    )
+    return message.send()

@@ -16,30 +16,41 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
     def _get_toolbar(self, content_obj, user, **kwargs):
         """Helper method to set up the toolbar
         """
-        request = RequestFactory().get(get_object_preview_url(content_obj))
+        request = RequestFactory().get('/')
         request.user = user
         request.session = {}
-        request.current_page = None
-        cms_toolbar = CMSToolbar(request)
-        toolbar = VersioningToolbar(
+        request.current_page = getattr(content_obj, 'page', None)
+        request.toolbar = CMSToolbar(request)
+        # Get the toolbar class to use
+        if kwargs.get('toolbar_class', False):
+            toolbar_class = kwargs.get('toolbar_class')
+        else:
+            toolbar_class = VersioningToolbar
+        toolbar = toolbar_class(
             request,
-            toolbar=cms_toolbar,
+            toolbar=request.toolbar,
             is_current_app=True,
             app_path='/',
         )
         toolbar.toolbar.obj = content_obj
-
         if kwargs.get('edit_mode', False):
             toolbar.toolbar.edit_mode_active = True
             toolbar.toolbar.content_mode_active = False
             toolbar.toolbar.structure_mode_active = False
-        elif kwargs.get('content_mode', False):
+        elif kwargs.get('preview_mode', False):
             toolbar.toolbar.edit_mode_active = False
             toolbar.toolbar.content_mode_active = True
             toolbar.toolbar.structure_mode_active = False
-
-        request.toolbar = toolbar.toolbar
+        elif kwargs.get('structure_mode', False):
+            toolbar.toolbar.edit_mode_active = False
+            toolbar.toolbar.content_mode_active = False
+            toolbar.toolbar.structure_mode_active = True
+        toolbar.populate()
         return toolbar
+
+    def _find_buttons(self):
+        #TODO
+        pass
 
     def test_not_render_edit_button_when_not_content_mode(self):
         user = self.get_superuser()

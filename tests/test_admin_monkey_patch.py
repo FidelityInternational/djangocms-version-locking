@@ -14,6 +14,7 @@ from djangocms_versioning.models import Version
 from djangocms_version_locking.models import VersionLock
 from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
+from djangocms_version_locking.monkeypatch.admin import _get_archive_link, _get_unpublish_link
 
 
 

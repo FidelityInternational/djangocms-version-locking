@@ -112,7 +112,6 @@ def send_email(
     """
     Send emails using locking templates
     """
-
     template = 'djangocms_version_locking/emails/{}'.format(template)
     subject = force_text(subject)
     content = render_to_string(template, template_context)

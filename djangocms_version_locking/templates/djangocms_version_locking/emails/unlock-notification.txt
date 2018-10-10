@@ -1,5 +1,4 @@
 {% load i18n %}
-
 {% blocktrans %}
 The following draft version has been unlocked by {{ by_user }} for their use.
 {{ version_link }}

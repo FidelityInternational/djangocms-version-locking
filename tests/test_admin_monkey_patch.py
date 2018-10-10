@@ -272,6 +272,7 @@ class ArchiveLockTestCase(CMSTestCase):
             archive_url = self.version_admin._get_archive_link(published_version, request)
             self.assertEqual("", archive_url)
 
+
 class UnPublishLockTestCase(CMSTestCase):
 
     def setUp(self):

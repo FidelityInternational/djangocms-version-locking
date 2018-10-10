@@ -40,12 +40,12 @@ class VersionLockExtensionUnitTestCase(CMSTestCase):
         cms_config_2 = Mock(
             spec=[],
             djangocms_versioning_enabled=True,
-            version_lock_models={}
+            version_lock_models=2
         )
         cms_config_3 = Mock(
             spec=[],
             djangocms_versioning_enabled=True,
-            version_lock_models=()
+            version_lock_models=True
         )
 
         with self.assertRaises(ImproperlyConfigured):

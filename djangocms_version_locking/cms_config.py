@@ -39,7 +39,9 @@ class VersionLockingCMSExtension(CMSAppExtension):
             raise ImproperlyConfigured('djangocms-versioning is not enabled.')
 
         # Check that the version_lock_models is a list
-        if not isinstance(cms_config.version_lock_models, collections.abc.Iterable):
+        if(isinstance(cms_config.version_lock_models, str)
+            or not isinstance(cms_config.version_lock_models, collections.abc.Iterable)
+        ):
             raise ImproperlyConfigured("version_lock_models is not defined as an iterable")
 
         # FIXME: Currently there's no way to check whats been registered with versioning, the

@@ -40,7 +40,6 @@ class VersionLockingCMSExtension(CMSAppExtension):
 
         # Check that the version_lock_models is a list
         if(isinstance(cms_config.version_lock_models, str)
-            or isinstance(cms_config.version_lock_models, dict)
             or not isinstance(cms_config.version_lock_models, collections.abc.Iterable)
         ):
             raise ImproperlyConfigured("version_lock_models is not defined as an iterable")

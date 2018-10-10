@@ -40,7 +40,12 @@ class VersionLockExtensionUnitTestCase(CMSTestCase):
         cms_config_2 = Mock(
             spec=[],
             djangocms_versioning_enabled=True,
-            version_lock_models={}
+            version_lock_models=2
+        )
+        cms_config_3 = Mock(
+            spec=[],
+            djangocms_versioning_enabled=True,
+            version_lock_models=False
         )
 
         with self.assertRaises(ImproperlyConfigured):
@@ -48,6 +53,9 @@ class VersionLockExtensionUnitTestCase(CMSTestCase):
 
         with self.assertRaises(ImproperlyConfigured):
             extensions.handle_settings(cms_config_2)
+
+        with self.assertRaises(ImproperlyConfigured):
+            extensions.handle_settings(cms_config_3)
 
     @skip("This feature is currently broken and will continue to fail until it's resolved")
     def test_raises_exception_if_locking_models_not_registered_with_versioning(self):

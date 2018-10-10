@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
-from django.urls import reverse
 
+from cms.toolbar.utils import get_object_preview_url
 from cms.utils import get_current_site
 
 from .helpers import send_email
@@ -14,16 +14,14 @@ def notify_version_author_version_unlocked(version, unlocking_user):
 
     site = get_current_site()
     recipients = [version.created_by.email]
-    subject = "[Django CMS] ({site_name}) {page_title} - {description}".format(
+    subject = "[Django CMS] ({site_name}) {title} - {description}".format(
         site_name=site.name,
-        page_title=version.content,
+        title=version.content,
         description=_("Unlocked"),
     )
-    version_url = reverse(
-        'admin:cms_placeholder_render_object_preview',
-        args=(version.content_type_id, version.object_id),
+    version_url = get_absolute_url(
+        get_object_preview_url(version.content)
     )
-    version_url = get_absolute_url(version_url)
 
     # Prepare and send the email
     template_context = {

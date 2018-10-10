@@ -1,9 +1,9 @@
 from django.contrib.auth.models import Permission
 from django.core import mail
 from django.utils.translation import ugettext_lazy as _
-from django.urls import reverse
 
 from cms.test_utils.testcases import CMSTestCase
+from cms.toolbar.utils import get_object_preview_url
 from cms.utils import get_current_site
 
 from djangocms_versioning.cms_config import VersioningCMSConfig
@@ -42,19 +42,17 @@ class VersionLockNotificationEmailsTestCase(CMSTestCase):
             self.client.post(draft_unlock_url, follow=True)
 
         site = get_current_site()
-        expected_subject = "[Django CMS] ({site_name}) {page_title} - {description}".format(
+        expected_subject = "[Django CMS] ({site_name}) {title} - {description}".format(
             site_name=site.name,
-            page_title=draft_version.content,
+            title=draft_version.content,
             description=_("Unlocked"),
         )
         expected_body = "The following draft version has been unlocked by {by_user} for their use.".format(
             by_user=self.user_has_unlock_perms
         )
-        expected_version_url = reverse(
-            'admin:cms_placeholder_render_object_preview',
-            args=(draft_version.content_type_id, draft_version.object_id),
+        expected_version_url = get_absolute_url(
+            get_object_preview_url(draft_version.content)
         )
-        expected_version_url = get_absolute_url(expected_version_url)
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, expected_subject)

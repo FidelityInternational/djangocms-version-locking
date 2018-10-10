@@ -58,6 +58,7 @@ class VersionLockNotificationEmailsTestCase(CMSTestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, expected_subject)
+        self.assertEqual(mail.outbox[0].to[0], self.user_author.email)
         self.assertTrue(expected_body in mail.outbox[0].body)
         self.assertTrue(expected_version_url in mail.outbox[0].body)
 

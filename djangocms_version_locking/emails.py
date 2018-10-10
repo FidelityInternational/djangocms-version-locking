@@ -13,7 +13,7 @@ def notify_version_author_version_unlocked(version, unlocking_user):
         return
 
     site = get_current_site()
-    recipients = [version.created_by]
+    recipients = [version.created_by.email]
     subject = "[Django CMS] ({site_name}) {page_title} - {description}".format(
         site_name=site.name,
         page_title=version.content,

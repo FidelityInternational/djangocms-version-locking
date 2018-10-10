@@ -123,7 +123,45 @@ def _get_unlock_link(self, obj, request):
             'disabled': disabled
         }
     )
+
+
 admin.VersionAdmin._get_unlock_link = _get_unlock_link
+
+
+def _get_archive_link(func):
+    """
+    Override the Versioning Admin archive action to disable the control
+    """
+    def inner(self, obj, request, disabled=False):
+        """Helper function to get the html link to the archive action
+        """
+        if obj.created_by != request.user:
+            disabled = True
+        return func(self, obj, request, disabled)
+    return inner
+
+
+admin.VersionAdmin._get_archive_link = _get_archive_link(
+    admin.VersionAdmin._get_archive_link
+)
+
+
+def _get_unpublish_link(func):
+    """
+    Override the Versioning Admin unpublish action to disable the control
+    """
+    def inner(self, obj, request, disabled=False):
+        """Helper function to get the html link to the unpublish action
+        """
+        if obj.created_by != request.user:
+            disabled = True
+        return func(self, obj, request, disabled)
+    return inner
+
+
+admin.VersionAdmin._get_unpublish_link = _get_unpublish_link(
+    admin.VersionAdmin._get_unpublish_link
+)
 
 
 def _get_urls(func):

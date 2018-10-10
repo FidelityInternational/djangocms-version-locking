@@ -13,6 +13,7 @@ from djangocms_versioning.models import Version
 from djangocms_version_locking.models import VersionLock
 from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
+from djangocms_version_locking.monkeypatch.admin import _get_archive_link, _get_unpublish_link
 
 
 def _content_has_lock(content):
@@ -55,7 +56,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
     def test_unlock_view_not_possible_for_user_with_no_permissions(self):
         poll_version = factories.PollVersionFactory(state=constants.DRAFT, created_by=self.user_author)
         unlock_url = self.get_admin_url(self.versionable.version_model_proxy, 'unlock', poll_version.pk)
-        
+
         with self.login_user_context(self.user_has_no_perms):
             response = self.client.post(unlock_url, follow=True)
 
@@ -123,7 +124,6 @@ class VersionLockUnlockTestCase(CMSTestCase):
 
         with self.login_user_context(self.user_has_unlock_perms):
             response = self.client.post(changelist_url)
-
         self.assertContains(response, unlock_control, html=True)
 
     def test_unlock_link_only_present_for_draft_versions(self):
@@ -226,3 +226,95 @@ class VersionLockEditActionStateTestCase(CMSTestCase):
         actual_disabled_state = self.version_admin._get_edit_link(version, otheruser_request)
 
         self.assertIn("inactive", actual_disabled_state)
+
+
+class ArchiveLockTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.superuser = self.get_superuser()
+        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
+        self.user_has_no_perms = self._create_user("user_has_no_perms", is_staff=True, is_superuser=False)
+        self.user_has_unlock_perms = self._create_user("user_has_unlock_perms", is_staff=True, is_superuser=False)
+        self.versionable = PollsCMSConfig.versioning[0]
+        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
+
+    def test_archive_link_only_present_for_author_for_draft(self):
+        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+
+        with self.login_user_context(self.superuser):
+            request = RequestFactory()
+            request.user = self.superuser
+            archive_url = _get_archive_link(self.version_admin, draft_version, request)
+            self.assertIn("inactive", archive_url)
+
+        with self.login_user_context(self.user_author):
+            request = RequestFactory()
+            request.user = self.user_author
+            archive_url = _get_archive_link(self.version_admin, draft_version, request)
+            self.assertNotIn("inactive", archive_url)
+
+    def test_archive_link_not_present_for_published_version(self):
+        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+        published_version = Version.objects.create(
+            content=factories.PollContentFactory(poll=draft_version.content.poll),
+            created_by=factories.UserFactory(),
+            state=constants.PUBLISHED
+        )
+
+        with self.login_user_context(self.user_author):
+            request = RequestFactory()
+            request.user = self.user_author
+            archive_url = _get_archive_link(self.version_admin, published_version, request)
+            self.assertEqual("", archive_url)
+
+        with self.login_user_context(self.user_author):
+            request = RequestFactory()
+            request.user = self.user_author
+            archive_url = _get_archive_link(self.version_admin, published_version, request)
+            self.assertEqual("", archive_url)
+
+
+class UnPublishLockTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.superuser = self.get_superuser()
+        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
+        self.user_has_no_perms = self._create_user("user_has_no_perms", is_staff=True, is_superuser=False)
+        self.user_has_unlock_perms = self._create_user("user_has_unlock_perms", is_staff=True, is_superuser=False)
+        self.versionable = PollsCMSConfig.versioning[0]
+        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
+
+    def test_unpublish_link_shoulnt_present_for_author_for_draft(self):
+        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+
+        with self.login_user_context(self.superuser):
+            request = RequestFactory()
+            request.user = self.superuser
+            unpublish_url = _get_unpublish_link(self.version_admin, draft_version, request)
+            self.assertIn("", unpublish_url)
+
+        with self.login_user_context(self.user_author):
+            request = RequestFactory()
+            request.user = self.user_author
+            unpublish_url = _get_unpublish_link(self.version_admin, draft_version, request)
+            self.assertIn("", unpublish_url)
+
+    def test_unpublish_link_not_present_for_published_version(self):
+        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+        published_version = Version.objects.create(
+            content=factories.PollContentFactory(poll=draft_version.content.poll),
+            created_by=factories.UserFactory(),
+            state=constants.PUBLISHED
+        )
+
+        with self.login_user_context(self.superuser):
+            request = RequestFactory()
+            request.user = self.superuser
+            unpublish_url = _get_unpublish_link(self.version_admin, published_version, request)
+            self.assertIn("inactive", unpublish_url)
+
+        with self.login_user_context(self.user_author):
+            request = RequestFactory()
+            request.user = self.user_author
+            unpublish_url = _get_unpublish_link(self.version_admin, published_version, request)
+            self.assertIn("inactive", unpublish_url)

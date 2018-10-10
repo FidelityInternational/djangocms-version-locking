@@ -8,14 +8,11 @@ from django.test import RequestFactory
 
 from djangocms_versioning import constants
 from djangocms_versioning.helpers import version_list_url
-
 from djangocms_versioning.models import Version
 
 from djangocms_version_locking.models import VersionLock
 from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
-from djangocms_version_locking.monkeypatch.admin import _get_archive_link, _get_unpublish_link
-
 
 
 def _content_has_lock(content):

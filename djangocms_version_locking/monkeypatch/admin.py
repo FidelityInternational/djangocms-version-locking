@@ -121,7 +121,55 @@ def _get_unlock_link(self, obj, request):
             'disabled': disabled
         }
     )
+
+
 admin.VersionAdmin._get_unlock_link = _get_unlock_link
+
+
+def _get_archive_link(self, obj, request, disabled=False):
+    """Helper function to get the html link to the archive action
+    """
+    if not obj.state == constants.DRAFT:
+        # Don't display the link if it can't be archived
+        return ''
+
+    disabled = disabled or obj.created_by != request.user
+    archive_url = reverse('admin:{app}_{model}_archive'.format(
+        app=obj._meta.app_label, model=self.model._meta.model_name,
+    ), args=(obj.pk,))
+    return render_to_string(
+        'djangocms_version_locking/admin/archive_icon.html',
+        {
+            'archive_url': archive_url,
+            'disabled': disabled
+        }
+    )
+
+
+admin.VersionAdmin._get_archive_link = _get_archive_link
+
+
+def _get_unpublish_link(self, obj, request):
+    """Helper function to get the html link to the unpublish action
+    """
+    if not obj.state == constants.PUBLISHED:
+        # Don't display the link if it can't be unpublished
+        return ''
+
+    disabled = obj.created_by != request.user
+    unpublish_url = reverse('admin:{app}_{model}_unpublish'.format(
+        app=obj._meta.app_label, model=self.model._meta.model_name,
+    ), args=(obj.pk,))
+    return render_to_string(
+        'djangocms_version_locking/admin/unpublish_icon.html',
+        {
+            'unpublish_url': unpublish_url,
+            'disabled': disabled,
+        }
+    )
+
+
+admin.VersionAdmin._get_unpublish_link = _get_unpublish_link
 
 
 def _get_urls(func):

@@ -13,7 +13,6 @@ from djangocms_versioning.models import Version
 from djangocms_version_locking.models import VersionLock
 from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
-from djangocms_version_locking.monkeypatch.admin import _get_archive_link, _get_unpublish_link
 
 
 def _content_has_lock(content):
@@ -244,13 +243,13 @@ class ArchiveLockTestCase(CMSTestCase):
         with self.login_user_context(self.superuser):
             request = RequestFactory()
             request.user = self.superuser
-            archive_url = _get_archive_link(self.version_admin, draft_version, request)
+            archive_url = self.version_admin._get_archive_link(draft_version, request)
             self.assertIn("inactive", archive_url)
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = self.user_author
-            archive_url = _get_archive_link(self.version_admin, draft_version, request)
+            archive_url = self.version_admin._get_archive_link(draft_version, request)
             self.assertNotIn("inactive", archive_url)
 
     def test_archive_link_not_present_for_published_version(self):
@@ -264,13 +263,13 @@ class ArchiveLockTestCase(CMSTestCase):
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = self.user_author
-            archive_url = _get_archive_link(self.version_admin, published_version, request)
+            archive_url = self.version_admin._get_archive_link(published_version, request)
             self.assertEqual("", archive_url)
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = self.user_author
-            archive_url = _get_archive_link(self.version_admin, published_version, request)
+            archive_url = self.version_admin._get_archive_link(published_version, request)
             self.assertEqual("", archive_url)
 
 class UnPublishLockTestCase(CMSTestCase):
@@ -289,13 +288,13 @@ class UnPublishLockTestCase(CMSTestCase):
         with self.login_user_context(self.superuser):
             request = RequestFactory()
             request.user = self.superuser
-            unpublish_url = _get_unpublish_link(self.version_admin, draft_version, request)
+            unpublish_url = self.version_admin._get_unpublish_link(draft_version, request)
             self.assertIn("", unpublish_url)
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = self.user_author
-            unpublish_url = _get_unpublish_link(self.version_admin, draft_version, request)
+            unpublish_url = self.version_admin._get_unpublish_link(draft_version, request)
             self.assertIn("", unpublish_url)
 
     def test_unpublish_link_not_present_for_published_version(self):
@@ -309,11 +308,11 @@ class UnPublishLockTestCase(CMSTestCase):
         with self.login_user_context(self.superuser):
             request = RequestFactory()
             request.user = self.superuser
-            unpublish_url = _get_unpublish_link(self.version_admin, published_version, request)
+            unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
             self.assertIn("inactive", unpublish_url)
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = self.user_author
-            unpublish_url = _get_unpublish_link(self.version_admin, published_version, request)
+            unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
             self.assertIn("inactive", unpublish_url)

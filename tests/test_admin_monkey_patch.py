@@ -317,3 +317,22 @@ class UnPublishLockTestCase(CMSTestCase):
             request.user = self.user_author
             unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
             self.assertIn("inactive", unpublish_url)
+
+
+class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.superuser = self.get_superuser()
+
+    def test_version_locking_css_media_loaded(self):
+        """
+        The verison locking css media is loaded on the page
+        """
+        poll_version = factories.PollVersionFactory(created_by=self.superuser)
+        changelist_url = version_list_url(poll_version.content)
+        css_file = "djangocms_version_locking/css/version-locking.css"
+
+        with self.login_user_context(self.superuser):
+            response = self.client.post(changelist_url)
+
+        self.assertContains(response, css_file)

@@ -13,10 +13,7 @@ def notify_version_author_version_unlocked(version, unlocking_user):
         return
 
     # If the users name is available use it, otherwise use their username
-    username = unlocking_user.get_full_name()
-    if username == "":
-        username = unlocking_user.username
-
+    username = unlocking_user.get_full_name() or unlocking_user.username
 
     site = get_current_site()
     recipients = [version.created_by.email]

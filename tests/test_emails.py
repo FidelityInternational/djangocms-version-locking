@@ -78,3 +78,52 @@ class VersionLockNotificationEmailsTestCase(CMSTestCase):
 
         # Check that no emails still exist
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_notify_version_author_version_unlocked_email_contents_users_full_name_used(self):
+        """
+        The email contains the full name of the author
+        """
+        user = self.user_has_unlock_perms
+        user.first_name = "Firstname"
+        user.last_name = "Lastname"
+        user.save()
+        draft_version = factories.PageVersionFactory(content__template="", created_by=self.user_author)
+        draft_unlock_url = self.get_admin_url(self.versionable.version_model_proxy,
+                                              'unlock', draft_version.pk)
+
+        # Check that no emails exist
+        self.assertEqual(len(mail.outbox), 0)
+
+        # Unlock the version with a different user with unlock permissions
+        with self.login_user_context(user):
+            self.client.post(draft_unlock_url, follow=True)
+
+        expected_body = "The following draft version has been unlocked by {by_user} for their use.".format(
+            by_user=user.get_full_name()
+        )
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(expected_body in mail.outbox[0].body)
+
+    def test_notify_version_author_version_unlocked_email_contents_users_username_used(self):
+        """
+        The email contains the  username of the author because no name is available
+        """
+        user = self.user_has_unlock_perms
+        draft_version = factories.PageVersionFactory(content__template="", created_by=self.user_author)
+        draft_unlock_url = self.get_admin_url(self.versionable.version_model_proxy,
+                                              'unlock', draft_version.pk)
+
+        # Check that no emails exist
+        self.assertEqual(len(mail.outbox), 0)
+
+        # Unlock the version with a different user with unlock permissions
+        with self.login_user_context(user):
+            self.client.post(draft_unlock_url, follow=True)
+
+        expected_body = "The following draft version has been unlocked by {by_user} for their use.".format(
+            by_user=user.username
+        )
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(expected_body in mail.outbox[0].body)

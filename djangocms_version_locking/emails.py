@@ -12,6 +12,9 @@ def notify_version_author_version_unlocked(version, unlocking_user):
     if version.created_by == unlocking_user:
         return
 
+    # If the users name is available use it, otherwise use their username
+    username = unlocking_user.get_full_name() or unlocking_user.username
+
     site = get_current_site()
     recipients = [version.created_by.email]
     subject = "[Django CMS] ({site_name}) {title} - {description}".format(
@@ -25,9 +28,8 @@ def notify_version_author_version_unlocked(version, unlocking_user):
 
     # Prepare and send the email
     template_context = {
-        'author_name': version.created_by,
         'version_link': version_url,
-        'by_user': unlocking_user,
+        'by_user': username,
     }
     status = send_email(
         recipients=recipients,

@@ -103,6 +103,62 @@ def version_is_unlocked_for_user(version, user):
     return lock is None or lock.created_by == user
 
 
+def can_archive(version, user):
+    """Helper method to check user can archive if lock doesn't exist for a version object or is locked to
+    provided user.
+    """
+    lock = version_is_locked(version)
+    if lock is None:
+        return True
+
+    if lock.created_by == user:
+        return True
+
+    return False
+
+
+def can_unpublish(version, user):
+    """Helper method to check user can unpublish if lock doesn't exist for a version object or is locked to
+    provided user.
+    """
+    lock = version_is_locked(version)
+    if lock is None:
+        return True
+
+    if lock.created_by == user:
+        return True
+
+    return False
+
+
+def can_revert(version, user):
+    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
+    provided user.
+    """
+    lock = version_is_locked(version)
+    if lock is None:
+        return True
+
+    if lock.created_by == user:
+        return True
+
+    return False
+
+
+def can_discard(version, user):
+    """Helper method to check user can discard if lock doesn't exist for a version object or is locked to
+    provided user.
+    """
+    lock = version_is_locked(version)
+    if lock is None:
+        return True
+
+    if lock.created_by == user:
+        return True
+
+    return False
+
+
 def send_email(
     recipients,
     subject,

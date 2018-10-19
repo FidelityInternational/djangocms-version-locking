@@ -244,7 +244,7 @@ admin.VersionAdmin._get_unpublish_link = _get_unpublish_link(
 )
 
 
-@def _get_urls(func):
+def _get_urls(func):
     """
     Add custom Version Lock urls to Versioning urls
     """

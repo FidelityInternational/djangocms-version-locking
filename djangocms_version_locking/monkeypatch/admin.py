@@ -230,3 +230,28 @@ admin.VersionAdmin._get_edit_link = _get_edit_link(
 # Add Version Locking css media to the Versioning Admin instance
 additional_css = ('djangocms_version_locking/css/version-locking.css',)
 admin.VersionAdmin.Media.css['all'] = admin.VersionAdmin.Media.css['all'] + additional_css
+
+
+def _get_discard_link(func):
+    """
+    Override the Versioning Admin unpublish action to disable the control
+    """
+    def inner(self, obj, request, disabled=False):
+        """Helper function to get the html link to the discard action
+        """
+        if version_is_locked(obj):
+            disabled = True
+
+        # if user is author then allow delete without unlocking
+        if obj.created_by == request.user:
+            disabled = False
+
+        return func(self, obj, request, disabled)
+    return inner
+
+
+admin.VersionAdmin._get_discard_link = _get_discard_link(
+    admin.VersionAdmin._get_discard_link
+)
+
+

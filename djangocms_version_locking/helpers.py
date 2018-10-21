@@ -144,31 +144,7 @@ def can_unpublish(version, user):
     return False
 
 
-def can_revert(version, user):
-    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
-    provided user.
-    """
-    from djangocms_versioning.models import Version
-    from djangocms_versioning.constants import DRAFT
 
-    pks_for_grouper = version.versionable.for_content_grouping_values(
-        version.content).values_list('pk', flat=True)
-    drafts = Version.objects.filter(
-        object_id__in=pks_for_grouper, content_type=version.content_type,
-        state=DRAFT)
-
-    draft_version = None
-    if drafts.exists():
-        draft_version = drafts.first()
-    lock = version_is_locked(draft_version)
-
-    if lock is None:
-        return True
-
-    if lock.created_by == user:
-        return True
-
-    return False
 
 
 def can_discard(version, user):

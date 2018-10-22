@@ -72,7 +72,6 @@ class TestVersionsLockTestCase(CMSTestCase):
         self.assertFalse(hasattr(updated_poll_version, 'versionlock'))
 
 
-
 class TestVersionCopyLocks(CMSTestCase):
 
     def test_draft_version_copy_creates_draft_lock(self):

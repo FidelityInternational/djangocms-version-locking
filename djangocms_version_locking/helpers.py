@@ -131,8 +131,10 @@ def get_latest_draft_version(version):
     from djangocms_versioning.models import Version
     from djangocms_versioning.constants import DRAFT
 
-    drafts = Version.objects\
-        .filter_by_content_grouping_values(version.content)\
+    drafts = (
+        Version.objects
+        .filter_by_content_grouping_values(version.content)
         .filter(state=DRAFT)
+    )
 
     return drafts.first()

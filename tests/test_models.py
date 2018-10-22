@@ -3,6 +3,7 @@ from cms.test_utils.testcases import CMSTestCase
 from djangocms_versioning import constants
 from djangocms_versioning.models import Version
 
+from djangocms_version_locking.helpers import version_is_locked
 from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
 
@@ -55,7 +56,10 @@ class TestVersionsLockTestCase(CMSTestCase):
         """
         poll_version = factories.PollVersionFactory(state=constants.DRAFT)
         archive_url = self.get_admin_url(self.versionable.version_model_proxy, 'archive', poll_version.pk)
-        user = self.get_staff_user_with_no_permissions()
+        version_lock = version_is_locked(poll_version)
+        user = self.get_superuser()
+        version_lock.created_by = user
+        version_lock.save()
 
         with self.login_user_context(user):
             response = self.client.post(archive_url)
@@ -66,6 +70,7 @@ class TestVersionsLockTestCase(CMSTestCase):
         self.assertEqual(updated_poll_version.state, constants.ARCHIVED)
         # Version lock does not exist
         self.assertFalse(hasattr(updated_poll_version, 'versionlock'))
+
 
 
 class TestVersionCopyLocks(CMSTestCase):

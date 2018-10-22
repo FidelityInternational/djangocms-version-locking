@@ -123,3 +123,21 @@ def send_email(
         to=recipients,
     )
     return message.send()
+
+
+def get_latest_draft_version(version):
+    """Get latest draft version of version object
+    """
+    from djangocms_versioning.models import Version
+    from djangocms_versioning.constants import DRAFT
+
+    pks_for_grouper = version.versionable.for_content_grouping_values(
+        version.content).values_list('pk', flat=True)
+    drafts = Version.objects.filter(
+        object_id__in=pks_for_grouper, content_type=version.content_type,
+        state=DRAFT)
+
+    draft_version = None
+    if drafts.exists():
+        draft_version = drafts.first()
+    return draft_version

@@ -1,5 +1,7 @@
 from cms.test_utils.testcases import CMSTestCase
 
+from django.utils.html import format_html
+
 from djangocms_versioning.test_utils.factories import (
     PageVersionFactory,
     UserFactory,
@@ -42,7 +44,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         self.assertTrue(edit_button.disabled)
         self.assertListEqual(
             edit_button.extra_classes,
-            ['cms-btn-action', 'cms-icon', 'cms-icon-lock']
+            ['cms-btn-action', 'cms-version-locking-btn-icon']
         )
 
     def test_enable_edit_button_when_content_is_locked(self):
@@ -54,9 +56,14 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
 
         toolbar = get_toolbar(version.content, user, content_mode=True)
         toolbar.post_template_populate()
-        edit_button = find_toolbar_buttons('Edit', toolbar.toolbar)[0]
 
-        self.assertEqual(edit_button.name, 'Edit')
+        btn_name = format_html(
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            name=_('Edit'),
+        )
+        edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
+
+        self.assertEqual(edit_button.name, btn_name)
 
         cms_extension = apps.get_app_config('djangocms_versioning').cms_extension
         versionable = cms_extension.versionables_by_grouper[Page]

@@ -314,7 +314,7 @@ class UnPublishLockTestCase(CMSTestCase):
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()
-            request.user = self.user_author
+            request.user = factories.UserFactory()
             unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
             self.assertIn("inactive", unpublish_url)
 

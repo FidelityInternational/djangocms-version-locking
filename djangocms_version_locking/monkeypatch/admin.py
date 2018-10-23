@@ -14,6 +14,7 @@ from djangocms_versioning.helpers import version_list_url
 from djangocms_version_locking.emails import notify_version_author_version_unlocked
 from djangocms_version_locking.helpers import (
     create_version_lock,
+    get_latest_draft_version,
     remove_version_lock,
     version_is_locked,
     version_is_unlocked_for_user
@@ -128,42 +129,6 @@ def _get_unlock_link(self, obj, request):
 admin.VersionAdmin._get_unlock_link = _get_unlock_link
 
 
-def _get_archive_link(func):
-    """
-    Override the Versioning Admin archive action to disable the control
-    """
-    def inner(self, obj, request, disabled=False):
-        """Helper function to get the html link to the archive action
-        """
-        if obj.created_by != request.user:
-            disabled = True
-        return func(self, obj, request, disabled)
-    return inner
-
-
-admin.VersionAdmin._get_archive_link = _get_archive_link(
-    admin.VersionAdmin._get_archive_link
-)
-
-
-def _get_unpublish_link(func):
-    """
-    Override the Versioning Admin unpublish action to disable the control
-    """
-    def inner(self, obj, request, disabled=False):
-        """Helper function to get the html link to the unpublish action
-        """
-        if obj.created_by != request.user:
-            disabled = True
-        return func(self, obj, request, disabled)
-    return inner
-
-
-admin.VersionAdmin._get_unpublish_link = _get_unpublish_link(
-    admin.VersionAdmin._get_unpublish_link
-)
-
-
 def _get_urls(func):
     """
     Add custom Version Lock urls to Versioning urls
@@ -232,26 +197,84 @@ additional_css = ('djangocms_version_locking/css/version-locking.css',)
 admin.VersionAdmin.Media.css['all'] = admin.VersionAdmin.Media.css['all'] + additional_css
 
 
-def _get_discard_link(func):
+def can_revert(func):
+    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
+    provided user.
     """
-    Override the Versioning Admin unpublish action to disable the control
-    """
-    def inner(self, obj, request, disabled=False):
-        """Helper function to get the html link to the discard action
-        """
-        if version_is_locked(obj):
-            disabled = True
+    def inner(self, version, user):
+        draft_version = get_latest_draft_version(version)
+        lock = version_is_locked(draft_version)
+        can_user_revert = False
+        if lock is None:
+            can_user_revert = True
 
-        # if user is author then allow delete without unlocking
-        if obj.created_by == request.user:
-            disabled = False
+        if lock and lock.created_by == user:
+            can_user_revert = True
 
-        return func(self, obj, request, disabled)
+        return can_user_revert and func(self, version, user)
+
     return inner
 
-
-admin.VersionAdmin._get_discard_link = _get_discard_link(
-    admin.VersionAdmin._get_discard_link
-)
+admin.VersionAdmin.can_revert = can_revert(admin.VersionAdmin.can_revert)
 
 
+def can_discard(func):
+    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
+    provided user.
+    """
+    def inner(self, version, user):
+        draft_version = get_latest_draft_version(version)
+        lock = version_is_locked(draft_version)
+        can_user_discard = False
+        if lock is None:
+            can_user_discard = True
+
+        if lock and lock.created_by == user:
+            can_user_discard = True
+
+        return can_user_discard and func(self, version, user)
+
+    return inner
+
+admin.VersionAdmin.can_discard = can_discard(admin.VersionAdmin.can_discard)
+
+
+def can_archive(func):
+    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
+    provided user.
+    """
+    def inner(self, version, user):
+        draft_version = get_latest_draft_version(version)
+        lock = version_is_locked(draft_version)
+        can_user_archive = False
+        if lock is None:
+            can_user_archive = True
+
+        if lock and lock.created_by == user:
+            can_user_archive = True
+
+        return can_user_archive and func(self, version, user)
+
+    return inner
+
+admin.VersionAdmin.can_archive = can_archive(admin.VersionAdmin.can_archive)
+
+def can_unpublish(func):
+    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
+    provided user.
+    """
+    def inner(self, version, user):
+        draft_version = get_latest_draft_version(version)
+        lock = version_is_locked(draft_version)
+        can_user_unpublish = False
+        if lock is None:
+            can_user_unpublish = True
+
+        if lock and lock.created_by == user:
+            can_user_unpublish = True
+
+        return can_user_unpublish and func(self, version, user)
+
+    return inner
+
+admin.VersionAdmin.can_unpublish = can_unpublish(admin.VersionAdmin.can_unpublish)

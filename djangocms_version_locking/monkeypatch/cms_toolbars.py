@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import format_html
 
 from cms.toolbar.items import ButtonList
 
@@ -23,10 +24,13 @@ def new_edit_button(func):
         # Add a disabled edit button.
         item = ButtonList(side=self.toolbar.RIGHT)
         item.add_button(
-            _('Edit'),
-            url='',
+            format_html(
+                '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+                name=_('Edit'),
+            ),
+            url='javascript:void(0)',
             disabled=True,
-            extra_classes=['cms-btn-action', 'cms-icon', 'cms-icon-lock'],
+            extra_classes=['cms-btn-action', 'cms-version-locking-btn-icon'],
         )
         self.toolbar.add_item(item)
     return inner

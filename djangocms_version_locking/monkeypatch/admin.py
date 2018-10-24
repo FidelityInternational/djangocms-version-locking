@@ -8,36 +8,15 @@ from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
-from djangocms_versioning import admin, models, constants
+from djangocms_versioning import admin, constants
 from djangocms_versioning.helpers import version_list_url
 
 from djangocms_version_locking.emails import notify_version_author_version_unlocked
 from djangocms_version_locking.helpers import (
-    create_version_lock,
-    get_latest_draft_version,
     remove_version_lock,
     version_is_locked,
     version_is_unlocked_for_user
 )
-
-
-def new_save(old_save):
-    """
-    Override the Versioning save method to add a version lock
-    """
-    def inner(version, **kwargs):
-        old_save(version, **kwargs)
-        # A draft version is locked by default
-        if version.state == constants.DRAFT:
-            if not version_is_locked(version):
-                # create a lock
-                create_version_lock(version, version.created_by)
-        # A any other state than draft has no lock, an existing lock should be removed
-        else:
-            remove_version_lock(version)
-        return version
-    return inner
-models.Version.save = new_save(models.Version.save)
 
 
 def locked(self, version):
@@ -195,86 +174,3 @@ admin.VersionAdmin._get_edit_link = _get_edit_link(
 # Add Version Locking css media to the Versioning Admin instance
 additional_css = ('djangocms_version_locking/css/version-locking.css',)
 admin.VersionAdmin.Media.css['all'] = admin.VersionAdmin.Media.css['all'] + additional_css
-
-
-def can_revert(func):
-    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
-    provided user.
-    """
-    def inner(self, version, user):
-        draft_version = get_latest_draft_version(version)
-        lock = version_is_locked(draft_version)
-        can_user_revert = False
-        if lock is None:
-            can_user_revert = True
-
-        if lock and lock.created_by == user:
-            can_user_revert = True
-
-        return can_user_revert and func(self, version, user)
-
-    return inner
-
-admin.VersionAdmin.can_revert = can_revert(admin.VersionAdmin.can_revert)
-
-
-def can_discard(func):
-    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
-    provided user.
-    """
-    def inner(self, version, user):
-        draft_version = get_latest_draft_version(version)
-        lock = version_is_locked(draft_version)
-        can_user_discard = False
-        if lock is None:
-            can_user_discard = True
-
-        if lock and lock.created_by == user:
-            can_user_discard = True
-
-        return can_user_discard and func(self, version, user)
-
-    return inner
-
-admin.VersionAdmin.can_discard = can_discard(admin.VersionAdmin.can_discard)
-
-
-def can_archive(func):
-    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
-    provided user.
-    """
-    def inner(self, version, user):
-        draft_version = get_latest_draft_version(version)
-        lock = version_is_locked(draft_version)
-        can_user_archive = False
-        if lock is None:
-            can_user_archive = True
-
-        if lock and lock.created_by == user:
-            can_user_archive = True
-
-        return can_user_archive and func(self, version, user)
-
-    return inner
-
-admin.VersionAdmin.can_archive = can_archive(admin.VersionAdmin.can_archive)
-
-def can_unpublish(func):
-    """Helper method to check user can revert if lock doesn't exist for a version object or is locked to
-    provided user.
-    """
-    def inner(self, version, user):
-        draft_version = get_latest_draft_version(version)
-        lock = version_is_locked(draft_version)
-        can_user_unpublish = False
-        if lock is None:
-            can_user_unpublish = True
-
-        if lock and lock.created_by == user:
-            can_user_unpublish = True
-
-        return can_user_unpublish and func(self, version, user)
-
-    return inner
-
-admin.VersionAdmin.can_unpublish = can_unpublish(admin.VersionAdmin.can_unpublish)

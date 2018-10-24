@@ -1,6 +1,7 @@
 from cms.test_utils.testcases import CMSTestCase
 
 from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 
 from djangocms_versioning.test_utils.factories import (
     PageVersionFactory,
@@ -37,10 +38,14 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
 
         toolbar = get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
-        edit_button = find_toolbar_buttons('Edit', toolbar.toolbar)[0]
+        btn_name = format_html(
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            name=_('Edit'),
+        )
+        edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
 
-        self.assertEqual(edit_button.name, 'Edit')
-        self.assertEqual(edit_button.url, '')
+        self.assertEqual(edit_button.name, btn_name)
+        self.assertEqual(edit_button.url, 'javascript:void(0)')
         self.assertTrue(edit_button.disabled)
         self.assertListEqual(
             edit_button.extra_classes,
@@ -56,14 +61,9 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
 
         toolbar = get_toolbar(version.content, user, content_mode=True)
         toolbar.post_template_populate()
+        edit_button = find_toolbar_buttons('Edit', toolbar.toolbar)[0]
 
-        btn_name = format_html(
-            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
-            name=_('Edit'),
-        )
-        edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
-
-        self.assertEqual(edit_button.name, btn_name)
+        self.assertEqual(edit_button.name, 'Edit')
 
         cms_extension = apps.get_app_config('djangocms_versioning').cms_extension
         versionable = cms_extension.versionables_by_grouper[Page]

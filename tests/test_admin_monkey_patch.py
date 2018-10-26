@@ -224,7 +224,7 @@ class VersionLockEditActionStateTestCase(CMSTestCase):
         otheruser_request.user = self.superuser
         actual_disabled_state = self.version_admin._get_edit_link(version, otheruser_request)
 
-        self.assertIn("inactive", actual_disabled_state)
+        self.assertNotIn("inactive", actual_disabled_state)
 
 
 class ArchiveLockTestCase(CMSTestCase):
@@ -310,13 +310,13 @@ class UnPublishLockTestCase(CMSTestCase):
             request = RequestFactory()
             request.user = self.superuser
             unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
-            self.assertIn("inactive", unpublish_url)
+            self.assertNotIn("inactive", unpublish_url)
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = factories.UserFactory()
             unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
-            self.assertIn("inactive", unpublish_url)
+            self.assertNotIn("inactive", unpublish_url)
 
 
 class DiscardTestCase(CMSTestCase):
@@ -336,7 +336,7 @@ class DiscardTestCase(CMSTestCase):
             request = RequestFactory()
             request.user = self.superuser
             discard_url = self.version_admin._get_discard_link(draft_version, request)
-            self.assertIn("inactive", discard_url)
+            self.assertNotIn("inactive", discard_url)
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()

@@ -1,4 +1,7 @@
+from django.utils.translation import ugettext_lazy as _
+
 from djangocms_versioning import models, constants
+from djangocms_versioning.exceptions import  ConditionFailed
 
 from djangocms_version_locking.helpers import (
     create_version_lock,
@@ -27,18 +30,28 @@ def new_save(old_save):
 models.Version.save = new_save(models.Version.save)
 
 
-def _is_version_locked(version, user):
-    lock = version_is_locked(version)
-    return not lock or lock.created_by == user
+def _is_version_locked(message):
+    def inner(version, user):
+        lock = version_is_locked(version)
+        if lock and lock.created_by != user:
+            raise ConditionFailed(message.format(user=lock.created_by))
+    return inner
 
 
-def _is_draft_version_locked(version, user):
-    draft_version = get_latest_draft_version(version)
-    lock = version_is_locked(draft_version)
-    return not lock or lock.created_by == user
+def _is_draft_version_locked(message):
+    def inner(version, user):
+        draft_version = get_latest_draft_version(version)
+        lock = version_is_locked(draft_version)
+        if lock and lock.created_by != user:
+            raise ConditionFailed(message.format(user=lock.created_by))
+    return inner
 
 
-models.Version.can_archive += [_is_version_locked]
-models.Version.can_discard += [_is_version_locked]
-models.Version.can_revert += [_is_draft_version_locked]
-models.Version.can_unpublish += [_is_draft_version_locked]
+error_message = _('Action Denied. The latest version is locked with {user}')
+
+
+models.Version.check_archive += [_is_version_locked(error_message)]
+models.Version.check_discard += [_is_version_locked(error_message)]
+models.Version.check_revert += [_is_version_locked(error_message)]
+models.Version.check_unpublish += [_is_version_locked(error_message)]
+models.Version.check_edit_redirect += [_is_version_locked(error_message)]

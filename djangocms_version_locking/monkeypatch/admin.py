@@ -157,20 +157,6 @@ admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
 )
 
 
-def _get_edit_link(func):
-    """
-    Override the Versioning Admin edit action to disable the control
-    """
-    def inner(self, obj, request, disabled=False):
-        if obj.state == constants.DRAFT and not version_is_unlocked_for_user(obj, request.user):
-            disabled = True
-        return func(self, obj, request, disabled)
-    return inner
-admin.VersionAdmin._get_edit_link = _get_edit_link(
-    admin.VersionAdmin._get_edit_link
-)
-
-
 # Add Version Locking css media to the Versioning Admin instance
 additional_css = ('djangocms_version_locking/css/version-locking.css',)
 admin.VersionAdmin.Media.css['all'] = admin.VersionAdmin.Media.css['all'] + additional_css

@@ -310,13 +310,13 @@ class UnPublishLockTestCase(CMSTestCase):
             request = RequestFactory()
             request.user = self.superuser
             unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
-            self.assertIn("inactive", unpublish_url)
+            self.assertNotIn("inactive", unpublish_url)
 
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = factories.UserFactory()
-            unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
-            self.assertIn("inactive", unpublish_url)
+            unpublish_url = self.version_admin._get_unpublish_link(draft_version, request)
+            self.assertEqual("", unpublish_url)
 
 
 class DiscardTestCase(CMSTestCase):
@@ -330,7 +330,7 @@ class DiscardTestCase(CMSTestCase):
         self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
 
     def test_discard_link_only_present_for_author_for_draft(self):
-        draft_version = factories.PollVersionFactory(created_by=self.user_author)
+        draft_version = factories.PollVersionFactory(created_by=self.user_author, state=constants.DRAFT)
 
         with self.login_user_context(self.superuser):
             request = RequestFactory()

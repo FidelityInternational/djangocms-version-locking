@@ -34,7 +34,7 @@ def _is_version_locked(message):
     def inner(version, user):
         lock = version_is_locked(version)
         if lock and lock.created_by != user:
-            raise ConditionFailed(message)
+            raise ConditionFailed(message.format(user=lock.created_by))
     return inner
 
 
@@ -42,12 +42,12 @@ def _is_draft_version_locked(message):
     def inner(version, user):
         draft_version = get_latest_draft_version(version)
         lock = version_is_locked(draft_version)
-        if lock or lock.created_by != user:
-            raise ConditionFailed(message)
+        if lock and lock.created_by != user:
+            raise ConditionFailed(message.format(user=lock.created_by))
     return inner
 
 
-error_message = _('Action Denied. The latest version is locked with another user')
+error_message = _('Action Denied. The latest version is locked with {user}')
 
 
 models.Version.check_archive += [_is_version_locked(error_message)]

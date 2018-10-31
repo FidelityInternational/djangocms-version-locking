@@ -48,10 +48,11 @@ def _is_draft_version_locked(message):
 
 
 error_message = _('Action Denied. The latest version is locked with {user}')
+draft_error_message = _('Action Denied. The draft version is locked with {user}')
 
 
 models.Version.check_archive += [_is_version_locked(error_message)]
 models.Version.check_discard += [_is_version_locked(error_message)]
-models.Version.check_revert += [_is_version_locked(error_message)]
-models.Version.check_unpublish += [_is_version_locked(error_message)]
-models.Version.check_edit_redirect += [_is_version_locked(error_message)]
+models.Version.check_revert += [_is_draft_version_locked(draft_error_message)]
+models.Version.check_unpublish += [_is_draft_version_locked(draft_error_message)]
+models.Version.check_edit_redirect += [_is_draft_version_locked(draft_error_message)]

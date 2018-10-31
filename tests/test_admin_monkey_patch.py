@@ -11,6 +11,7 @@ from djangocms_versioning.helpers import version_list_url
 from djangocms_versioning.models import Version
 
 from djangocms_version_locking.models import VersionLock
+from djangocms_version_locking.helpers import version_is_locked
 from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
 
@@ -227,7 +228,7 @@ class VersionLockEditActionStateTestCase(CMSTestCase):
         self.assertIn("inactive", actual_disabled_state)
 
 
-class ArchiveLockTestCase(CMSTestCase):
+class RevertLockTestCase(CMSTestCase):
 
     def setUp(self):
         self.superuser = self.get_superuser()
@@ -237,132 +238,43 @@ class ArchiveLockTestCase(CMSTestCase):
         self.versionable = PollsCMSConfig.versioning[0]
         self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
 
-    def test_archive_link_only_present_for_author_for_draft(self):
+    def test_revert_link_should_not_present_for_draft_state(self):
         draft_version = factories.PollVersionFactory(created_by=self.user_author)
 
         with self.login_user_context(self.superuser):
             request = RequestFactory()
             request.user = self.superuser
-            archive_url = self.version_admin._get_archive_link(draft_version, request)
-            self.assertIn("inactive", archive_url)
+            revert_link = self.version_admin._get_revert_link(draft_version, request)
+            self.assertEqual('',revert_link)
 
-        with self.login_user_context(self.user_author):
-            request = RequestFactory()
-            request.user = self.user_author
-            archive_url = self.version_admin._get_archive_link(draft_version, request)
-            self.assertNotIn("inactive", archive_url)
-
-    def test_archive_link_not_present_for_published_version(self):
+    def test_revert_link_not_present_for_published_version(self):
         draft_version = factories.PollVersionFactory(created_by=self.user_author)
         published_version = Version.objects.create(
             content=factories.PollContentFactory(poll=draft_version.content.poll),
             created_by=factories.UserFactory(),
             state=constants.PUBLISHED
         )
-
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = self.user_author
-            archive_url = self.version_admin._get_archive_link(published_version, request)
-            self.assertEqual("", archive_url)
-
-        with self.login_user_context(self.user_author):
-            request = RequestFactory()
-            request.user = self.user_author
-            archive_url = self.version_admin._get_archive_link(published_version, request)
-            self.assertEqual("", archive_url)
+            revert_link = self.version_admin._get_revert_link(published_version, request)
+            self.assertEqual("", revert_link)
 
 
-class UnPublishLockTestCase(CMSTestCase):
-
-    def setUp(self):
-        self.superuser = self.get_superuser()
-        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
-        self.user_has_no_perms = self._create_user("user_has_no_perms", is_staff=True, is_superuser=False)
-        self.user_has_unlock_perms = self._create_user("user_has_unlock_perms", is_staff=True, is_superuser=False)
-        self.versionable = PollsCMSConfig.versioning[0]
-        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
-
-    def test_unpublish_link_shoulnt_present_for_author_for_draft(self):
+    def test_revert_link_is_inactive_if_locked_draft_present(self):
         draft_version = factories.PollVersionFactory(created_by=self.user_author)
+        archive_version = draft_version.copy(created_by=self.superuser)
+        archive_version.archive(user=self.user_author)
 
-        with self.login_user_context(self.superuser):
-            request = RequestFactory()
-            request.user = self.superuser
-            unpublish_url = self.version_admin._get_unpublish_link(draft_version, request)
-            self.assertIn("", unpublish_url)
-
+        self.assertTrue(version_is_locked(draft_version))
         with self.login_user_context(self.user_author):
             request = RequestFactory()
             request.user = self.user_author
-            unpublish_url = self.version_admin._get_unpublish_link(draft_version, request)
-            self.assertIn("", unpublish_url)
-
-    def test_unpublish_link_not_present_for_published_version(self):
-        draft_version = factories.PollVersionFactory(created_by=self.user_author)
-        published_version = Version.objects.create(
-            content=factories.PollContentFactory(poll=draft_version.content.poll),
-            created_by=factories.UserFactory(),
-            state=constants.PUBLISHED
-        )
-
-        with self.login_user_context(self.superuser):
-            request = RequestFactory()
-            request.user = self.superuser
-            unpublish_url = self.version_admin._get_unpublish_link(published_version, request)
-            self.assertNotIn("inactive", unpublish_url)
-
-        with self.login_user_context(self.user_author):
-            request = RequestFactory()
-            request.user = factories.UserFactory()
-            unpublish_url = self.version_admin._get_unpublish_link(draft_version, request)
-            self.assertEqual("", unpublish_url)
+            revert_link = self.version_admin._get_revert_link(archive_version, request)
+            self.assertIn("inactive", revert_link)
 
 
-class DiscardTestCase(CMSTestCase):
 
-    def setUp(self):
-        self.superuser = self.get_superuser()
-        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
-        self.user_has_no_perms = self._create_user("user_has_no_perms", is_staff=True, is_superuser=False)
-        self.user_has_unlock_perms = self._create_user("user_has_unlock_perms", is_staff=True, is_superuser=False)
-        self.versionable = PollsCMSConfig.versioning[0]
-        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
-
-    def test_discard_link_only_present_for_author_for_draft(self):
-        draft_version = factories.PollVersionFactory(created_by=self.user_author, state=constants.DRAFT)
-
-        with self.login_user_context(self.superuser):
-            request = RequestFactory()
-            request.user = self.superuser
-            discard_url = self.version_admin._get_discard_link(draft_version, request)
-            self.assertIn("inactive", discard_url)
-
-        with self.login_user_context(self.user_author):
-            request = RequestFactory()
-            request.user = self.user_author
-            discard_url = self.version_admin._get_discard_link(draft_version, request)
-            self.assertNotIn("inactive", discard_url)
-
-    def test_archive_link_not_present_for_published_version(self):
-        draft_version = factories.PollVersionFactory(created_by=self.user_author)
-        published_version = Version.objects.create(
-            content=factories.PollContentFactory(poll=draft_version.content.poll),
-            created_by=factories.UserFactory(),
-            state=constants.PUBLISHED
-        )
-
-        with self.login_user_context(self.user_author):
-            request = RequestFactory()
-            request.user = self.user_author
-            discard_url = self.version_admin._get_discard_link(published_version, request)
-            self.assertEqual("", discard_url)
-
-        with self.login_user_context(self.user_author):
-            request = RequestFactory()
-            request.user = self.user_author
-            discard_url = self.version_admin._get_discard_link(published_version, request)
-            self.assertEqual("", discard_url)
 
 
 class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):

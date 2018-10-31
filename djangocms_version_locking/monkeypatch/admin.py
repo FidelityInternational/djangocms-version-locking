@@ -15,7 +15,7 @@ from djangocms_version_locking.emails import notify_version_author_version_unloc
 from djangocms_version_locking.helpers import (
     remove_version_lock,
     version_is_locked,
-    version_is_unlocked_for_user
+    get_latest_draft_version
 )
 
 
@@ -155,6 +155,42 @@ def _get_edit_redirect_version(func):
 admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
     admin.VersionAdmin._get_edit_redirect_version
 )
+
+
+def _get_revert_link(func):
+    """
+    Override the Versioning Admin revert action to disable the control
+    """
+    def inner(self, obj, request, disabled=False):
+        """Helper function to get the html link to the revert action
+        """
+        draft_version = get_latest_draft_version(obj)
+        lock = version_is_locked(draft_version)
+        # if user is author then allow revert/discard without unlocking
+        if lock and lock.created_by != request.user:
+            disabled = True
+        return func(self, obj, request, disabled)
+    return inner
+admin.VersionAdmin._get_revert_link = _get_revert_link(
+    admin.VersionAdmin._get_revert_link
+)
+
+
+def revert_view(func):
+    def inner(self, request, object_id):
+        version = self.get_object(request, unquote(object_id))
+        draft_version = get_latest_draft_version(version)
+        lock = version_is_locked(draft_version)
+        if lock and lock.created_by != request.user:
+            self.message_user(request, force_text(_("Discard/Revert action not allowed while draft version is locked")), messages.ERROR)
+            return redirect(version_list_url(version.content))
+        return func(self, request, object_id)
+    return inner
+
+admin.VersionAdmin.revert_view = revert_view(
+    admin.VersionAdmin.revert_view
+)
+
 
 
 # Add Version Locking css media to the Versioning Admin instance

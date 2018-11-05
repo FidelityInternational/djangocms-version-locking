@@ -86,7 +86,14 @@ def remove_version_lock(version):
     """
     Delete a version lock, handles when there are none available.
     """
-    return VersionLock.objects.filter(version=version).delete()
+    try:
+        from djangocms_internalsearch.helpers import emit_content_change
+    except ImportError:
+        emit_content_change = None
+    deleted = VersionLock.objects.filter(version=version).delete()
+    if emit_content_change:
+        emit_content_change(version.content)
+    return deleted
 
 
 def version_is_locked(version):

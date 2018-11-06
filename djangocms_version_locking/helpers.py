@@ -51,6 +51,18 @@ def replace_admin_for_models(models, admin_site=None):
         _replace_admin_for_model(modeladmin, admin_site)
 
 
+def get_lock_for_content(content):
+    """Check if a lock exists, if so return it
+    """
+    try:
+        return VersionLock.objects.get(
+            version__content_type=ContentType.objects.get_for_model(content),
+            version__object_id=content.pk,
+        )
+    except VersionLock.DoesNotExist:
+        return None
+
+
 def content_is_unlocked_for_user(content, user):
     """Check if lock doesn't exist or object is locked to provided user.
     """

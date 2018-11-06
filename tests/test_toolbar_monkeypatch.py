@@ -76,3 +76,49 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
             edit_button.extra_classes,
             ['cms-btn-action', 'cms-versioning-js-edit-btn']
         )
+
+    def test_edit_button_when_content_is_locked_users_full_name_used(self):
+        user = self.get_superuser()
+        user.first_name = "Firstname"
+        user.last_name = "Lastname"
+        user.save()
+        user_2 = UserFactory(
+            is_staff=True,
+            is_superuser=True,
+            username='admin2',
+            email='admin2@123.com',
+        )
+        version = PageVersionFactory(created_by=user)
+
+        toolbar = get_toolbar(version.content, user_2, content_mode=True)
+        toolbar.post_template_populate()
+        btn_name = format_html(
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            name=_('Edit'),
+        )
+        edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
+
+        self.assertEqual(edit_button.html_attributes, {'title': "Locked with {}".format(user.get_full_name())})
+
+    def test_edit_button_when_content_is_locked_users_username_used(self):
+        user = self.get_superuser()
+        user.first_name = ""
+        user.last_name = ""
+        user.save()
+        user_2 = UserFactory(
+            is_staff=True,
+            is_superuser=True,
+            username='admin2',
+            email='admin2@123.com',
+        )
+        version = PageVersionFactory(created_by=user)
+
+        toolbar = get_toolbar(version.content, user_2, content_mode=True)
+        toolbar.post_template_populate()
+        btn_name = format_html(
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            name=_('Edit'),
+        )
+        edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
+
+        self.assertEqual(edit_button.html_attributes, {'title': "Locked with {}".format(user.username)})

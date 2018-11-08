@@ -8,6 +8,11 @@ from django.utils.encoding import force_text
 from .admin import VersionLockAdminMixin
 from .models import VersionLock
 
+try:
+    from djangocms_internalsearch.helpers import emit_content_change
+except ImportError:
+    emit_content_change = None
+
 
 def version_lock_admin_factory(admin_class):
     """A class factory returning admin class with overriden
@@ -76,20 +81,18 @@ def create_version_lock(version, user):
     """
     Create a version lock
     """
-    return VersionLock.objects.create(
+    created = VersionLock.objects.create(
         version=version,
         created_by=user
     )
-
+    if emit_content_change:
+        emit_content_change(version.content)
+    return created
 
 def remove_version_lock(version):
     """
     Delete a version lock, handles when there are none available.
     """
-    try:
-        from djangocms_internalsearch.helpers import emit_content_change
-    except ImportError:
-        emit_content_change = None
     deleted = VersionLock.objects.filter(version=version).delete()
     if emit_content_change:
         emit_content_change(version.content)

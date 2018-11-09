@@ -16,8 +16,8 @@ def new_save(old_save):
     Override the Versioning save method to add a version lock
     """
     def inner(version, **kwargs):
-        # A draft version is locked by default
         old_save(version, **kwargs)
+        # A draft version is locked by default
         if version.state == constants.DRAFT:
             if not version_is_locked(version):
                 # create a lock

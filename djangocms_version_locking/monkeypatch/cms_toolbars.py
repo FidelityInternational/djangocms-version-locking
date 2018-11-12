@@ -9,23 +9,18 @@ from djangocms_version_locking.helpers import content_is_unlocked_for_user, get_
 
 
 class ButtonWithAttributes(Button):
-    template = "djangocms_version_locking/toolbar/items/button.html"
+    template = "djangocms_version_locking/toolbar/items/button_with_attributes.html"
 
     def __init__(self, name, url, active=False, disabled=False,
                  extra_classes=None, html_attributes=None):
-        super(ButtonWithAttributes, self).__init__(name, url, active, disabled, extra_classes)
+        super().__init__(name, url, active, disabled, extra_classes)
 
         self.html_attributes = html_attributes
 
     def get_context(self):
-        return {
-            'name': self.name,
-            'url': self.url,
-            'active': self.active,
-            'disabled': self.disabled,
-            'extra_classes': self.extra_classes,
-            'html_attributes': self.html_attributes,
-        }
+        context = super().get_context(self)
+        context['html_attributes'] = self.html_attributes
+        return context
 
 
 def new_edit_button(func):
@@ -41,11 +36,11 @@ def new_edit_button(func):
             return
 
         # Populate a title with the locked author details
-        title = ""
+        html_attributes = {}
         version_lock = get_lock_for_content(self.toolbar.obj)
         if version_lock:
             # If the users name is available use it, otherwise use their username
-            title = _("Locked with {name}").format(
+            html_attributes['title'] = _("Locked with {name}").format(
                 name=version_lock.created_by.get_full_name() or version_lock.created_by.username,
             )
 
@@ -60,7 +55,7 @@ def new_edit_button(func):
             url='javascript:void(0)',
             disabled=True,
             extra_classes=['cms-btn-action', 'cms-version-locking-btn-icon'],
-            html_attributes={'title': title},
+            html_attributes=html_attributes,
         )
         item_list.buttons.append(button)
         self.toolbar.add_item(item_list)

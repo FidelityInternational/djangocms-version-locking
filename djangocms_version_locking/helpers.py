@@ -66,10 +66,8 @@ def get_lock_for_content(content):
 def content_is_unlocked_for_user(content, user):
     """Check if lock doesn't exist or object is locked to provided user.
     """
-    try:
-        version = Version.objects.select_related('versionlock').get_for_content(content)
-        lock = version.versionlock
-    except ObjectDoesNotExist:
+    lock = get_lock_for_content(content)
+    if lock is None:
         return True
     return lock.created_by == user
 

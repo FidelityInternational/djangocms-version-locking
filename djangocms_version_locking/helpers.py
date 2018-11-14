@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
+
+from djangocms_versioning.models import Version
 
 from .admin import VersionLockAdminMixin
 from .models import VersionLock
@@ -56,15 +58,21 @@ def replace_admin_for_models(models, admin_site=None):
         _replace_admin_for_model(modeladmin, admin_site)
 
 
+def get_lock_for_content(content):
+    """Check if a lock exists, if so return it
+    """
+    try:
+        version = Version.objects.select_related('versionlock').get_for_content(content)
+        return version.versionlock
+    except ObjectDoesNotExist:
+        return None
+
+
 def content_is_unlocked_for_user(content, user):
     """Check if lock doesn't exist or object is locked to provided user.
     """
-    try:
-        lock = VersionLock.objects.get(
-            version__content_type=ContentType.objects.get_for_model(content),
-            version__object_id=content.pk,
-        )
-    except VersionLock.DoesNotExist:
+    lock = get_lock_for_content(content)
+    if lock is None:
         return True
     return lock.created_by == user
 

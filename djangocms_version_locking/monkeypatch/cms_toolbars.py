@@ -18,7 +18,7 @@ class ButtonWithAttributes(Button):
         self.html_attributes = html_attributes
 
     def get_context(self):
-        context = super().get_context(self)
+        context = super().get_context()
         context['html_attributes'] = self.html_attributes
         return context
 

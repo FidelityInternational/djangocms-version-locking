@@ -21,11 +21,10 @@ def new_save(old_save):
         if version.state == constants.DRAFT:
             if not version_is_locked(version):
                 # create a lock
-                version._versionlock_cache = create_version_lock(version, version.created_by)
+                create_version_lock(version, version.created_by)
         # A any other state than draft has no lock, an existing lock should be removed
         else:
             remove_version_lock(version)
-            version._versionlock_cache = None
         return version
     return inner
 models.Version.save = new_save(models.Version.save)

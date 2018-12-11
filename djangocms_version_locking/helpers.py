@@ -87,22 +87,22 @@ def placeholder_content_is_unlocked_for_user(placeholder, user):
 
 def create_version_lock(version, user):
     """
-    Create a version lock
+    Create a version lock if necessary
     """
-    created = VersionLock.objects.create(
+    lock, created = VersionLock.objects.get_or_create(
         version=version,
         created_by=user
     )
-    if emit_content_change:
+    if created and emit_content_change:
         emit_content_change(version.content)
-    return created
+    return lock
 
 def remove_version_lock(version):
     """
     Delete a version lock, handles when there are none available.
     """
     deleted = VersionLock.objects.filter(version=version).delete()
-    if emit_content_change:
+    if deleted[0] and emit_content_change:
         emit_content_change(version.content)
     return deleted
 

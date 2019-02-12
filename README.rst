@@ -1,10 +1,10 @@
 
-******************************
+**************************
 django CMS Version Locking
-******************************
+**************************
 
 Explanation
-------------
+-----------
 The version-locking addon is intended to modify the way djangocms-versioning works in the following way: 
 
  - The primary change is that it locks a version to its author when a draft is created. 

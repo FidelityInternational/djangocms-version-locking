@@ -8,8 +8,8 @@ Explanation
 The version-locking addon is intended to modify the way djangocms-versioning works in the following way: 
 
  - The primary change is that it locks a version to its author when a draft is created. 
- - That version becomes automatically unlocked again once it is published. 
  - The lock prevents editing of the file by anyone other than the author.
+ - That version becomes automatically unlocked again once it is published. 
  - Locks can be removed by a user with the correct permission
  - Unlocking an item sends a notification to the author to which it was locked.
  - Manually unlocking a version does not lock it to the unlocking user, nor does it change the author.
@@ -22,5 +22,4 @@ The package djangocms-versioning and djangocms-moderation need to be installed f
 
 Configuration
 -------------
-Version-locking makes use of the django-cms 4.x App Registration mechanism to allow models from other addon's (i.e. content-types) to be registered for use with version-locking. 
-`®`
+Version-locking makes use of the django-cms 4.x App Registration mechanism to allow models from other addon's (i.e. content-types) to be registered for use with version-locking. See the cms_config.py file for an example of how. In this file the PageContent model is configured for version-locking.

@@ -8,4 +8,3 @@ class VersionLockingConfig(AppConfig):
 
     def ready(self):
         from .monkeypatch import checks, cms_toolbars, models
-        from .monkeypatch import admin as monkeypatch_admin

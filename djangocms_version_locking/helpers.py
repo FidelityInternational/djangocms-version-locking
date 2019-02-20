@@ -5,6 +5,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 
+from djangocms_versioning import versionables
 from djangocms_versioning.models import Version
 
 from .admin import VersionLockAdminMixin
@@ -61,6 +62,10 @@ def replace_admin_for_models(models, admin_site=None):
 def get_lock_for_content(content):
     """Check if a lock exists, if so return it
     """
+    try:
+        versionables.for_content(content)
+    except KeyError:
+        return None
     try:
         version = Version.objects.select_related('versionlock').get_for_content(content)
         return version.versionlock

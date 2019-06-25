@@ -40,10 +40,19 @@ def _is_version_locked(message):
 
 def _is_draft_version_locked(message):
     def inner(version, user):
-        draft_version = get_latest_draft_version(version)
-        lock = version_is_locked(draft_version)
-        if lock and lock.created_by != user:
-            raise ConditionFailed(message.format(user=lock.created_by))
+        try:
+            # if there's a prepoluated field on version object
+            # representing a draft lock, use it
+            cached_draft_version_user_id = getattr(version, "_draft_version_user_id")
+            if cached_draft_version_user_id and cached_draft_version_user_id != user.pk:
+                raise ConditionFailed(
+                    message.format(user="User #{}".format(cached_draft_version_user_id))
+                )
+        except AttributeError:
+            draft_version = get_latest_draft_version(version)
+            lock = version_is_locked(draft_version)
+            if lock and lock.created_by != user:
+                raise ConditionFailed(message.format(user=lock.created_by))
     return inner
 
 

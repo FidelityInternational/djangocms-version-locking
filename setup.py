@@ -28,4 +28,5 @@ setup(
     test_suite='test_settings.run',
     url='http://github.com/divio/djangocms-version-locking',
     license='BSD',
+    zip_safe=False
 )

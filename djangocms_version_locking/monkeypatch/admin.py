@@ -15,7 +15,7 @@ from djangocms_version_locking.emails import notify_version_author_version_unloc
 from djangocms_version_locking.helpers import (
     remove_version_lock,
     version_is_locked,
-    version_is_unlocked_for_user
+    content_is_unlocked_for_user,
 )
 
 
@@ -24,9 +24,11 @@ def locked(self, version):
     Generate an locked field for Versioning Admin
     """
     if version.state == constants.DRAFT and version_is_locked(version):
-        return render_to_string('djangocms_version_locking/admin/locked_icon.html')
+        return render_to_string("djangocms_version_locking/admin/locked_icon.html")
     return ""
-locked.short_description = _('locked')
+
+
+locked.short_description = _("locked")
 admin.VersionAdmin.locked = locked
 
 
@@ -34,12 +36,22 @@ def get_list_display(func):
     """
     Register the locked field with the Versioning Admin
     """
+
     def inner(self, request):
         list_display = func(self, request)
-        created_by_index = list_display.index('created_by')
-        return list_display[:created_by_index] + ('locked', ) + list_display[created_by_index:]
+        created_by_index = list_display.index("created_by")
+        return (
+            list_display[:created_by_index]
+            + ("locked",)
+            + list_display[created_by_index:]
+        )
+
     return inner
-admin.VersionAdmin.get_list_display = get_list_display(admin.VersionAdmin.get_list_display)
+
+
+admin.VersionAdmin.get_list_display = get_list_display(
+    admin.VersionAdmin.get_list_display
+)
 
 
 def _unlock_view(self, request, object_id):
@@ -47,22 +59,27 @@ def _unlock_view(self, request, object_id):
     Unlock a locked version
     """
     # This view always changes data so only POST requests should work
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(['POST'], _('This view only supports POST method.'))
+    if request.method != "POST":
+        return HttpResponseNotAllowed(
+            ["POST"], _("This view only supports POST method.")
+        )
 
     # Check version exists
     version = self.get_object(request, unquote(object_id))
     if version is None:
         return self._get_obj_does_not_exist_redirect(
-            request, self.model._meta, object_id)
+            request, self.model._meta, object_id
+        )
 
     # Raise 404 if not locked
     if version.state != constants.DRAFT:
         raise Http404
 
     # Check that the user has unlock permission
-    if not request.user.has_perm('djangocms_version_locking.delete_versionlock'):
-        return HttpResponseForbidden(force_text(_("You do not have permission to remove the version lock")))
+    if not request.user.has_perm("djangocms_version_locking.delete_versionlock"):
+        return HttpResponseForbidden(
+            force_text(_("You do not have permission to remove the version lock"))
+        )
 
     # Unlock the version
     remove_version_lock(version)
@@ -75,6 +92,8 @@ def _unlock_view(self, request, object_id):
     # Redirect
     url = version_list_url(version.content)
     return redirect(url)
+
+
 admin.VersionAdmin._unlock_view = _unlock_view
 
 
@@ -89,19 +108,21 @@ def _get_unlock_link(self, obj, request):
     disabled = True
     # Check whether the lock can be removed
     # Check that the user has unlock permission
-    if version_is_locked(obj) and request.user.has_perm('djangocms_version_locking.delete_versionlock'):
+    if version_is_locked(obj) and request.user.has_perm(
+        "djangocms_version_locking.delete_versionlock"
+    ):
         disabled = False
 
-    unlock_url = reverse('admin:{app}_{model}_unlock'.format(
-        app=obj._meta.app_label, model=self.model._meta.model_name,
-    ), args=(obj.pk,))
+    unlock_url = reverse(
+        "admin:{app}_{model}_unlock".format(
+            app=obj._meta.app_label, model=self.model._meta.model_name
+        ),
+        args=(obj.pk,),
+    )
 
     return render_to_string(
-        'djangocms_version_locking/admin/unlock_icon.html',
-        {
-            'unlock_url': unlock_url,
-            'disabled': disabled
-        }
+        "djangocms_version_locking/admin/unlock_icon.html",
+        {"unlock_url": unlock_url, "disabled": disabled},
     )
 
 
@@ -112,18 +133,23 @@ def _get_urls(func):
     """
     Add custom Version Lock urls to Versioning urls
     """
+
     def inner(self, *args, **kwargs):
         url_list = func(self, *args, **kwargs)
         info = self.model._meta.app_label, self.model._meta.model_name
-        url_list.insert(0,
+        url_list.insert(
+            0,
             url(
-                r'^(.+)/unlock/$',
+                r"^(.+)/unlock/$",
                 self.admin_site.admin_view(self._unlock_view),
-                name='{}_{}_unlock'.format(*info),
-            )
+                name="{}_{}_unlock".format(*info),
+            ),
         )
         return url_list
+
     return inner
+
+
 admin.VersionAdmin.get_urls = _get_urls(admin.VersionAdmin.get_urls)
 
 
@@ -131,18 +157,25 @@ def get_state_actions(func):
     """
     Add custom Version Lock actions to Versioning state actions
     """
+
     def inner(self, *args, **kwargs):
         state_list = func(self, *args, **kwargs)
         state_list.append(self._get_unlock_link)
         return state_list
+
     return inner
-admin.VersionAdmin.get_state_actions = get_state_actions(admin.VersionAdmin.get_state_actions)
+
+
+admin.VersionAdmin.get_state_actions = get_state_actions(
+    admin.VersionAdmin.get_state_actions
+)
 
 
 def _get_edit_redirect_version(func):
     """
     Override the Versioning Admin edit redirect to add a user as a version author if no lock exists
     """
+
     def inner(self, request, object_id):
         version = func(self, request, object_id)
         if version is not None:
@@ -151,12 +184,35 @@ def _get_edit_redirect_version(func):
             version.created_by = request.user
             version.save()
         return version
+
     return inner
+
+
 admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
     admin.VersionAdmin._get_edit_redirect_version
 )
 
 
+def _has_change_permission(func):
+    """
+    Override VersionAdminMixing has_origin_permission to check obj is locked for user
+    """
+    def inner(self, request, obj=None):
+        has_original_permission = func(self, request, obj)
+        return has_original_permission and content_is_unlocked_for_user(
+            obj, request.user
+        )
+
+    return inner
+
+
+admin.VersioningAdminMixin.has_change_permission = _has_change_permission(
+    admin.VersioningAdminMixin.has_change_permission
+)
+
+
 # Add Version Locking css media to the Versioning Admin instance
-additional_css = ('djangocms_version_locking/css/version-locking.css',)
-admin.VersionAdmin.Media.css['all'] = admin.VersionAdmin.Media.css['all'] + additional_css
+additional_css = ("djangocms_version_locking/css/version-locking.css",)
+admin.VersionAdmin.Media.css["all"] = (
+    admin.VersionAdmin.Media.css["all"] + additional_css
+)

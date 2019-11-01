@@ -8,6 +8,10 @@ INSTALL_REQUIREMENTS = [
     'django-cms>=3.5',
 ]
 
+TEST_REQUIREMENTS = [
+    'djangocms_text_ckeditor',
+    'djangocms_versioning',
+]
 
 setup(
     name='djangocms-version-locking',
@@ -26,7 +30,13 @@ setup(
     install_requires=INSTALL_REQUIREMENTS,
     author='Fidelity International',
     test_suite='test_settings.run',
+    tests_require=TEST_REQUIREMENTS,
     url='http://github.com/divio/djangocms-version-locking',
     license='BSD',
-    zip_safe=False
+    zip_safe=False,
+    dependency_links=[
+        'http://github.com/divio/django-cms/tarball/release/4.0.x#egg=django-cms',
+        'http://github.com/divio/djangocms-versioning/tarball/master#egg=djangocms-versioning',
+        'http://github.com/divio/djangocms-text-ckeditor/tarball/support/4.0.x#egg=djangocms-text-ckeditor',
+    ]
 )

@@ -5,7 +5,7 @@ py34default: &py34default
     - image: circleci/python:3.4
   steps:
    - setup_remote_docker:
-       docker_layer_caching: true
+       docker_layer_caching: false
    - checkout
    - attach_workspace:
        at: /tmp/images

@@ -1,10 +1,20 @@
+from django.conf import settings
 from django.contrib import admin
-from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.encoding import force_text
 
-from djangocms_versioning import constants
+from djangocms_versioning import versionables
+from djangocms_versioning.models import Version
 
 from .admin import VersionLockAdminMixin
 from .models import VersionLock
+
+try:
+    from djangocms_internalsearch.helpers import emit_content_change
+except ImportError:
+    emit_content_change = None
 
 
 def version_lock_admin_factory(admin_class):
@@ -49,15 +59,25 @@ def replace_admin_for_models(models, admin_site=None):
         _replace_admin_for_model(modeladmin, admin_site)
 
 
+def get_lock_for_content(content):
+    """Check if a lock exists, if so return it
+    """
+    try:
+        versionables.for_content(content)
+    except KeyError:
+        return None
+    try:
+        version = Version.objects.select_related('versionlock').get_for_content(content)
+        return version.versionlock
+    except ObjectDoesNotExist:
+        return None
+
+
 def content_is_unlocked_for_user(content, user):
     """Check if lock doesn't exist or object is locked to provided user.
     """
-    try:
-        lock = VersionLock.objects.get(
-            version__content_type=ContentType.objects.get_for_model(content),
-            version__object_id=content.pk,
-        )
-    except VersionLock.DoesNotExist:
+    lock = get_lock_for_content(content)
+    if lock is None:
         return True
     return lock.created_by == user
 
@@ -72,19 +92,24 @@ def placeholder_content_is_unlocked_for_user(placeholder, user):
 
 def create_version_lock(version, user):
     """
-    Create a version lock
+    Create a version lock if necessary
     """
-    return VersionLock.objects.create(
+    lock, created = VersionLock.objects.get_or_create(
         version=version,
         created_by=user
     )
-
+    if created and emit_content_change:
+        emit_content_change(version.content)
+    return lock
 
 def remove_version_lock(version):
     """
     Delete a version lock, handles when there are none available.
     """
-    return VersionLock.objects.filter(version=version).delete()
+    deleted = VersionLock.objects.filter(version=version).delete()
+    if deleted[0] and emit_content_change:
+        emit_content_change(version.content)
+    return deleted
 
 
 def version_is_locked(version):
@@ -99,3 +124,40 @@ def version_is_unlocked_for_user(version, user):
     """
     lock = version_is_locked(version)
     return lock is None or lock.created_by == user
+
+
+def send_email(
+    recipients,
+    subject,
+    template,
+    template_context
+):
+    """
+    Send emails using locking templates
+    """
+    template = 'djangocms_version_locking/emails/{}'.format(template)
+    subject = force_text(subject)
+    content = render_to_string(template, template_context)
+
+    message = EmailMessage(
+        subject=subject,
+        body=content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=recipients,
+    )
+    return message.send()
+
+
+def get_latest_draft_version(version):
+    """Get latest draft version of version object
+    """
+    from djangocms_versioning.models import Version
+    from djangocms_versioning.constants import DRAFT
+
+    drafts = (
+        Version.objects
+        .filter_by_content_grouping_values(version.content)
+        .filter(state=DRAFT)
+    )
+
+    return drafts.first()

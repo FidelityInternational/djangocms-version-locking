@@ -24,9 +24,9 @@ setup(
         'Topic :: Software Development'
     ],
     install_requires=INSTALL_REQUIREMENTS,
-    author='Divio AG',
+    author='Fidelity International',
     test_suite='test_settings.run',
-    author_email='info@divio.ch',
     url='http://github.com/divio/djangocms-version-locking',
     license='BSD',
+    zip_safe=False
 )

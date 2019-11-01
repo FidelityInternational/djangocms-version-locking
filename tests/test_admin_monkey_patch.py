@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.test import RequestFactory
 
 from djangocms_versioning import constants
+from djangocms_versioning.helpers import version_list_url
 from djangocms_versioning.models import Version
 
 from djangocms_version_locking.models import VersionLock
@@ -54,7 +55,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
     def test_unlock_view_not_possible_for_user_with_no_permissions(self):
         poll_version = factories.PollVersionFactory(state=constants.DRAFT, created_by=self.user_author)
         unlock_url = self.get_admin_url(self.versionable.version_model_proxy, 'unlock', poll_version.pk)
-        
+
         with self.login_user_context(self.user_has_no_perms):
             response = self.client.post(unlock_url, follow=True)
 
@@ -85,8 +86,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
 
     def test_unlock_link_not_present_for_author(self):
         poll_version = factories.PollVersionFactory(state=constants.DRAFT, created_by=self.user_author)
-        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
-              + '?grouper=' + str(poll_version.content.poll.pk)
+        changelist_url = version_list_url(poll_version.content)
         unlock_url = self.get_admin_url(self.versionable.version_model_proxy, 'unlock', poll_version.pk)
         unlock_control = render_to_string(
             'djangocms_version_locking/admin/unlock_icon.html',
@@ -100,8 +100,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
 
     def test_unlock_link_not_present_for_user_with_no_unlock_privileges(self):
         poll_version = factories.PollVersionFactory(state=constants.DRAFT, created_by=self.user_author)
-        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
-              + '?grouper=' + str(poll_version.content.poll.pk)
+        changelist_url = version_list_url(poll_version.content)
         unlock_url = self.get_admin_url(self.versionable.version_model_proxy, 'unlock', poll_version.pk)
         unlock_control = render_to_string(
             'djangocms_version_locking/admin/unlock_icon.html',
@@ -115,8 +114,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
 
     def test_unlock_link_present_for_user_with_privileges(self):
         poll_version = factories.PollVersionFactory(state=constants.DRAFT, created_by=self.user_author)
-        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
-              + '?grouper=' + str(poll_version.content.poll.pk)
+        changelist_url = version_list_url(poll_version.content)
         unlock_url = self.get_admin_url(self.versionable.version_model_proxy, 'unlock', poll_version.pk)
         unlock_control = render_to_string(
             'djangocms_version_locking/admin/unlock_icon.html',
@@ -125,7 +123,6 @@ class VersionLockUnlockTestCase(CMSTestCase):
 
         with self.login_user_context(self.user_has_unlock_perms):
             response = self.client.post(changelist_url)
-
         self.assertContains(response, unlock_control, html=True)
 
     def test_unlock_link_only_present_for_draft_versions(self):
@@ -145,8 +142,7 @@ class VersionLockUnlockTestCase(CMSTestCase):
             'djangocms_version_locking/admin/unlock_icon.html',
             {'unlock_url': published_unlock_url}
         )
-        changelist_url = self.get_admin_url(self.versionable.version_model_proxy, 'changelist') \
-              + '?grouper=' + str(draft_version.content.poll.pk)
+        changelist_url = version_list_url(draft_version.content)
 
         with self.login_user_context(self.superuser):
             response = self.client.post(changelist_url)
@@ -229,3 +225,22 @@ class VersionLockEditActionStateTestCase(CMSTestCase):
         actual_disabled_state = self.version_admin._get_edit_link(version, otheruser_request)
 
         self.assertIn("inactive", actual_disabled_state)
+
+
+class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.superuser = self.get_superuser()
+
+    def test_version_locking_css_media_loaded(self):
+        """
+        The verison locking css media is loaded on the page
+        """
+        poll_version = factories.PollVersionFactory(created_by=self.superuser)
+        changelist_url = version_list_url(poll_version.content)
+        css_file = "djangocms_version_locking/css/version-locking.css"
+
+        with self.login_user_context(self.superuser):
+            response = self.client.post(changelist_url)
+
+        self.assertContains(response, css_file)

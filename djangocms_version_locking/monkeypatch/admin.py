@@ -8,36 +8,15 @@ from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
-from cms.utils.urlutils import admin_reverse
-
-from djangocms_versioning import admin, models, constants
+from djangocms_versioning import admin, constants
 from djangocms_versioning.helpers import version_list_url
 
+from djangocms_version_locking.emails import notify_version_author_version_unlocked
 from djangocms_version_locking.helpers import (
-    create_version_lock,
     remove_version_lock,
     version_is_locked,
     version_is_unlocked_for_user
 )
-
-
-def new_save(old_save):
-    """
-    Override the Versioning save method to add a version lock
-    """
-    def inner(version, **kwargs):
-        old_save(version, **kwargs)
-        # A draft version is locked by default
-        if version.state == constants.DRAFT:
-            if not version_is_locked(version):
-                # create a lock
-                create_version_lock(version, version.created_by)
-        # A any other state than draft has no lock, an existing lock should be removed
-        else:
-            remove_version_lock(version)
-        return version
-    return inner
-models.Version.save = new_save(models.Version.save)
 
 
 def locked(self, version):
@@ -90,6 +69,9 @@ def _unlock_view(self, request, object_id):
     # Display message
     messages.success(request, _("Version unlocked"))
 
+    # Send an email notification
+    notify_version_author_version_unlocked(version, request.user)
+
     # Redirect
     url = version_list_url(version.content)
     return redirect(url)
@@ -121,6 +103,8 @@ def _get_unlock_link(self, obj, request):
             'disabled': disabled
         }
     )
+
+
 admin.VersionAdmin._get_unlock_link = _get_unlock_link
 
 
@@ -173,15 +157,6 @@ admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
 )
 
 
-def _get_edit_link(func):
-    """
-    Override the Versioning Admin edit action to disable the control
-    """
-    def inner(self, obj, request, disabled=False):
-        if obj.state == constants.DRAFT and not version_is_unlocked_for_user(obj, request.user):
-            disabled = True
-        return func(self, obj, request, disabled)
-    return inner
-admin.VersionAdmin._get_edit_link = _get_edit_link(
-    admin.VersionAdmin._get_edit_link
-)
+# Add Version Locking css media to the Versioning Admin instance
+additional_css = ('djangocms_version_locking/css/version-locking.css',)
+admin.VersionAdmin.Media.css['all'] = admin.VersionAdmin.Media.css['all'] + additional_css

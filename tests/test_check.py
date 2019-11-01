@@ -3,6 +3,7 @@ from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_versioning.constants import ARCHIVED
 from djangocms_versioning.test_utils.factories import (
+    FancyPollFactory,
     PageVersionFactory,
     PlaceholderFactory,
 )
@@ -34,6 +35,12 @@ class CheckLockTestCase(CMSTestCase):
         placeholder = PlaceholderFactory(source=version.content)
 
         self.assertFalse(placeholder_content_is_unlocked_for_user(placeholder, user2))
+
+    def test_check_no_lock_for_unversioned_model(self):
+        user2 = self.get_standard_user()
+        placeholder = PlaceholderFactory(source=FancyPollFactory())
+
+        self.assertTrue(placeholder_content_is_unlocked_for_user(placeholder, user2))
 
 
 class CheckInjectTestCase(CMSTestCase):

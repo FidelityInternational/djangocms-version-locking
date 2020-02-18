@@ -1,12 +1,8 @@
-import string
-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
 
 import factory
-from djangocms_text_ckeditor.models import Text
-from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyText
+from factory.fuzzy import FuzzyChoice, FuzzyText
 
 from ..models import Version
 from .polls.models import Answer, Poll, PollContent

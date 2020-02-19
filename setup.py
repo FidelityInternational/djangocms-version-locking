@@ -37,8 +37,8 @@ setup(
     license='BSD',
     zip_safe=False,
     dependency_links=[
-        'http://github.com/divio/django-cms/tarball/release/4.0.x#egg=django-cms',
-        'http://github.com/divio/djangocms-versioning/tarball/master#egg=djangocms-versioning',
-        'http://github.com/divio/djangocms-text-ckeditor/tarball/support/4.0.x#egg=djangocms-text-ckeditor',
+        'http://github.com/divio/django-cms/tarball/release/4.0.x#egg=django-cms-4.0.0',
+        'http://github.com/divio/djangocms-versioning/tarball/master#egg=djangocms-versioning-0.0.24',
+        'http://github.com/divio/djangocms-text-ckeditor/tarball/support/4.0.x#egg=djangocms-text-ckeditor-4.0.0dev1',
     ]
 )

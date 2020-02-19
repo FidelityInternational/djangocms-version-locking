@@ -13,6 +13,7 @@ TEST_REQUIREMENTS = [
     'djangocms_text_ckeditor',
     'djangocms_versioning',
     "factory-boy",
+    "flake8",
 ]
 
 setup(

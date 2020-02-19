@@ -1,4 +1,8 @@
 # test libraries
 coverage
+pyflakes>=2.1.1
+flake8
+isort
+mock
 djangocms_helper
 factory-boy

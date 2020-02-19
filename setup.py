@@ -4,13 +4,15 @@ import djangocms_version_locking
 
 
 INSTALL_REQUIREMENTS = [
-    'Django>=1.11,<3.0'
+    'Django>=1.11,<2.2'
     'django-cms>=3.5',
 ]
 
 TEST_REQUIREMENTS = [
+    "djangocms_helper",
     'djangocms_text_ckeditor',
     'djangocms_versioning',
+    "factory-boy",
 ]
 
 setup(

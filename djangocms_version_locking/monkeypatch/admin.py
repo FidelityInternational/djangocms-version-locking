@@ -14,8 +14,7 @@ from djangocms_versioning.helpers import version_list_url
 from djangocms_version_locking.emails import notify_version_author_version_unlocked
 from djangocms_version_locking.helpers import (
     remove_version_lock,
-    version_is_locked,
-    version_is_unlocked_for_user
+    version_is_locked
 )
 
 

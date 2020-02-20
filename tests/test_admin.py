@@ -22,6 +22,7 @@ from djangocms_version_locking.test_utils.polls.models import (
     Poll,
     PollContent,
 )
+from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
 
 
 class AdminReplaceVersioningTestCase(CMSTestCase):
@@ -113,30 +114,41 @@ class AdminLockedFieldTestCase(CMSTestCase):
 
 class AdminPermissionTestCase(CMSTestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.versionable = PollsCMSConfig.versioning[0]
+
+    def setUp(self):
+        self.superuser = self.get_superuser()
+        self.user_has_change_perms = self._create_user(
+            "user_has_unlock_perms",
+            is_staff=True,
+            permissions=["change_pollcontentversion", "delete_versionlock"],
+        )
+
     def test_user_has_change_permission(self):
         """
-        Test that the user who created the version has permission to change it
+        The user who created the version has permission to change it
         """
-        author = self.get_superuser()
-        content = factories.PollVersionFactory(state=DRAFT, created_by=author)
-        url = self.get_admin_url(PollContent, 'change', content.pk)
+        content = factories.PollVersionFactory(state=DRAFT, created_by=self.user_has_change_perms)
+        url = self.get_admin_url(self.versionable.version_model_proxy, 'change', content.pk)
 
-        with self.login_user_context(author):
+        with self.login_user_context(self.user_has_change_perms):
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
 
+    # FIXME: This test should try and submit changes to the item as the form renders as readonly currently.
     def test_user_does_not_have_change_permission(self):
         """
-        Test that a different user from the  user who created
+        A different user from the user who created
         the version does not have permission to change it
         """
-        author = factories.UserFactory()
-        editor = self.get_superuser()
+        author = factories.UserFactory(is_staff=True)
         content = factories.PollVersionFactory(state=DRAFT, created_by=author)
-        url = self.get_admin_url(PollContent, 'change', content.pk)
+        url = self.get_admin_url(self.versionable.version_model_proxy, 'change', content.pk)
 
-        with self.login_user_context(editor):
+        with self.login_user_context(self.user_has_change_perms):
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)

@@ -99,9 +99,8 @@ class VersionLockUnlockTestCase(CMSTestCase):
 
     @skip("Requires clarification if this is still a valid requirement!")
     def test_unlock_link_not_present_for_author(self):
-        # FIXME: May be redundant now as this requirement was probably removed at a later date due to the fatc that
-        #   an author may be asked to unlock their version for someone else to use!
-        #   Need to check
+        # FIXME: May be redundant now as this requirement was probably removed at a later date due
+        #  to the fact that an author may be asked to unlock their version for someone else to use!
         author = self.get_superuser()
         poll_version = factories.PollVersionFactory(state=constants.DRAFT, created_by=author)
         changelist_url = version_list_url(poll_version.content)

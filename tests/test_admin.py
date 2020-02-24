@@ -1,3 +1,4 @@
+from unittest import skip
 from unittest.mock import patch
 
 from django.contrib import admin
@@ -138,7 +139,7 @@ class AdminPermissionTestCase(CMSTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    # FIXME: This test should try and submit changes to the item as the form renders as readonly currently.
+    @skip("FIXME: This test should try and submit changes to the item as the form renders as readonly currently.")
     def test_user_does_not_have_change_permission(self):
         """
         A different user from the user who created

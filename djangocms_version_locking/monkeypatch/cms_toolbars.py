@@ -1,11 +1,13 @@
-from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 
 from cms.toolbar.items import Button, ButtonList
 
+from djangocms_version_locking.helpers import (
+    content_is_unlocked_for_user,
+    get_lock_for_content,
+)
 from djangocms_versioning.cms_toolbars import VersioningToolbar
-
-from djangocms_version_locking.helpers import content_is_unlocked_for_user, get_lock_for_content
 
 
 class ButtonWithAttributes(Button):
@@ -49,7 +51,8 @@ def new_edit_button(func):
         item_list = ButtonList(side=self.toolbar.RIGHT)
         button = ButtonWithAttributes(
             format_html(
-                '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+                '<span style="vertical-align:middle;position:relative;top:-1px" '
+                'class="cms-icon cms-icon-lock"></span>{name}',
                 name=_('Edit'),
             ),
             url='javascript:void(0)',
@@ -60,4 +63,6 @@ def new_edit_button(func):
         item_list.buttons.append(button)
         self.toolbar.add_item(item_list)
     return inner
+
+
 VersioningToolbar._add_edit_button = new_edit_button(VersioningToolbar._add_edit_button)

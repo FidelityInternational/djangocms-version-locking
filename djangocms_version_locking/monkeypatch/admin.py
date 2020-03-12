@@ -1,22 +1,22 @@
 from django.conf.urls import url
 from django.contrib import messages
 from django.contrib.admin.utils import unquote
-from django.http import Http404, HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, HttpResponseNotAllowed
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
-from djangocms_versioning import admin, constants
-from djangocms_versioning.helpers import version_list_url
-
-from djangocms_version_locking.emails import notify_version_author_version_unlocked
+from djangocms_version_locking.emails import (
+    notify_version_author_version_unlocked,
+)
 from djangocms_version_locking.helpers import (
     remove_version_lock,
     version_is_locked,
-    version_is_unlocked_for_user
 )
+from djangocms_versioning import admin, constants
+from djangocms_versioning.helpers import version_list_url
 
 
 def locked(self, version):
@@ -26,6 +26,8 @@ def locked(self, version):
     if version.state == constants.DRAFT and version_is_locked(version):
         return render_to_string('djangocms_version_locking/admin/locked_icon.html')
     return ""
+
+
 locked.short_description = _('locked')
 admin.VersionAdmin.locked = locked
 
@@ -39,6 +41,8 @@ def get_list_display(func):
         created_by_index = list_display.index('created_by')
         return list_display[:created_by_index] + ('locked', ) + list_display[created_by_index:]
     return inner
+
+
 admin.VersionAdmin.get_list_display = get_list_display(admin.VersionAdmin.get_list_display)
 
 
@@ -75,6 +79,8 @@ def _unlock_view(self, request, object_id):
     # Redirect
     url = version_list_url(version.content)
     return redirect(url)
+
+
 admin.VersionAdmin._unlock_view = _unlock_view
 
 
@@ -115,15 +121,15 @@ def _get_urls(func):
     def inner(self, *args, **kwargs):
         url_list = func(self, *args, **kwargs)
         info = self.model._meta.app_label, self.model._meta.model_name
-        url_list.insert(0,
-            url(
-                r'^(.+)/unlock/$',
-                self.admin_site.admin_view(self._unlock_view),
-                name='{}_{}_unlock'.format(*info),
-            )
-        )
+        url_list.insert(0, url(
+            r'^(.+)/unlock/$',
+            self.admin_site.admin_view(self._unlock_view),
+            name='{}_{}_unlock'.format(*info),
+        ))
         return url_list
     return inner
+
+
 admin.VersionAdmin.get_urls = _get_urls(admin.VersionAdmin.get_urls)
 
 
@@ -136,6 +142,8 @@ def get_state_actions(func):
         state_list.append(self._get_unlock_link)
         return state_list
     return inner
+
+
 admin.VersionAdmin.get_state_actions = get_state_actions(admin.VersionAdmin.get_state_actions)
 
 
@@ -152,6 +160,8 @@ def _get_edit_redirect_version(func):
             version.save()
         return version
     return inner
+
+
 admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
     admin.VersionAdmin._get_edit_redirect_version
 )

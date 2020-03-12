@@ -11,6 +11,7 @@ from djangocms_versioning.models import Version
 from .admin import VersionLockAdminMixin
 from .models import VersionLock
 
+
 try:
     from djangocms_internalsearch.helpers import emit_content_change
 except ImportError:
@@ -101,6 +102,7 @@ def create_version_lock(version, user):
     if created and emit_content_change:
         emit_content_change(version.content)
     return lock
+
 
 def remove_version_lock(version):
     """

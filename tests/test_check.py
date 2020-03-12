@@ -1,15 +1,15 @@
 from cms.models.fields import PlaceholderRelationField
 from cms.test_utils.testcases import CMSTestCase
 
+from djangocms_version_locking.helpers import (
+    placeholder_content_is_unlocked_for_user,
+)
 from djangocms_versioning.constants import ARCHIVED
 from djangocms_versioning.test_utils.factories import (
     FancyPollFactory,
     PageVersionFactory,
     PlaceholderFactory,
 )
-
-
-from djangocms_version_locking.helpers import placeholder_content_is_unlocked_for_user
 
 
 class CheckLockTestCase(CMSTestCase):

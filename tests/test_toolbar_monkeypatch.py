@@ -1,17 +1,16 @@
-from cms.test_utils.testcases import CMSTestCase
-
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
-from djangocms_versioning.test_utils.factories import (
-    PageVersionFactory,
-    UserFactory,
-)
+from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_version_locking.test_utils.test_helpers import (
     find_toolbar_buttons,
     get_toolbar,
     toolbar_button_exists,
+)
+from djangocms_versioning.test_utils.factories import (
+    PageVersionFactory,
+    UserFactory,
 )
 
 
@@ -39,7 +38,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         toolbar = get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
         btn_name = format_html(
-            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',  # noqa: E501
             name=_('Edit'),
         )
         edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
@@ -93,7 +92,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         toolbar = get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
         btn_name = format_html(
-            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',  # noqa: E501
             name=_('Edit'),
         )
         edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
@@ -116,7 +115,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         toolbar = get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
         btn_name = format_html(
-            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',  # noqa: E501
             name=_('Edit'),
         )
         edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]

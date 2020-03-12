@@ -25,6 +25,8 @@ def locked(self, version):
     if version.state == constants.DRAFT and version_is_locked(version):
         return render_to_string('djangocms_version_locking/admin/locked_icon.html')
     return ""
+
+
 locked.short_description = _('locked')
 admin.VersionAdmin.locked = locked
 
@@ -38,6 +40,8 @@ def get_list_display(func):
         created_by_index = list_display.index('created_by')
         return list_display[:created_by_index] + ('locked', ) + list_display[created_by_index:]
     return inner
+
+
 admin.VersionAdmin.get_list_display = get_list_display(admin.VersionAdmin.get_list_display)
 
 
@@ -74,6 +78,8 @@ def _unlock_view(self, request, object_id):
     # Redirect
     url = version_list_url(version.content)
     return redirect(url)
+
+
 admin.VersionAdmin._unlock_view = _unlock_view
 
 
@@ -123,6 +129,8 @@ def _get_urls(func):
         )
         return url_list
     return inner
+
+
 admin.VersionAdmin.get_urls = _get_urls(admin.VersionAdmin.get_urls)
 
 
@@ -135,6 +143,8 @@ def get_state_actions(func):
         state_list.append(self._get_unlock_link)
         return state_list
     return inner
+
+
 admin.VersionAdmin.get_state_actions = get_state_actions(admin.VersionAdmin.get_state_actions)
 
 
@@ -151,6 +161,8 @@ def _get_edit_redirect_version(func):
             version.save()
         return version
     return inner
+
+
 admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
     admin.VersionAdmin._get_edit_redirect_version
 )

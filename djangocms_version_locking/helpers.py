@@ -102,6 +102,7 @@ def create_version_lock(version, user):
         emit_content_change(version.content)
     return lock
 
+
 def remove_version_lock(version):
     """
     Delete a version lock, handles when there are none available.

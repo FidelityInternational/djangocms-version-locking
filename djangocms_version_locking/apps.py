@@ -7,4 +7,4 @@ class VersionLockingConfig(AppConfig):
     verbose_name = _("django CMS Version Locking")
 
     def ready(self):
-        from .monkeypatch import checks, cms_toolbars, models
+        from .monkeypatch import checks, cms_toolbars, models  # noqa: F401

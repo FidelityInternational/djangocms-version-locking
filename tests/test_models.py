@@ -31,7 +31,7 @@ class TestVersionsLockTestCase(CMSTestCase):
         user = self.get_staff_user_with_no_permissions()
 
         with self.login_user_context(user):
-            response = self.client.post(publish_url)
+            self.client.post(publish_url)
 
         updated_poll_version = Version.objects.get(pk=poll_version.pk)
 
@@ -41,7 +41,7 @@ class TestVersionsLockTestCase(CMSTestCase):
         self.assertFalse(hasattr(updated_poll_version, 'versionlock'))
 
         with self.login_user_context(user):
-            response = self.client.post(unpublish_url)
+            self.client.post(unpublish_url)
 
         updated_poll_version = Version.objects.get(pk=poll_version.pk)
 
@@ -62,7 +62,7 @@ class TestVersionsLockTestCase(CMSTestCase):
         version_lock.save()
 
         with self.login_user_context(user):
-            response = self.client.post(archive_url)
+            self.client.post(archive_url)
 
         updated_poll_version = Version.objects.get(pk=poll_version.pk)
 

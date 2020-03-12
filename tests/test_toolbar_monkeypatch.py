@@ -39,7 +39,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         toolbar = get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
         btn_name = format_html(
-            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',  # noqa: E501
             name=_('Edit'),
         )
         edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
@@ -93,7 +93,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         toolbar = get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
         btn_name = format_html(
-            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',  # noqa: E501
             name=_('Edit'),
         )
         edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]
@@ -116,7 +116,7 @@ class VersionToolbarOverrideTestCase(CMSTestCase):
         toolbar = get_toolbar(version.content, user_2, content_mode=True)
         toolbar.post_template_populate()
         btn_name = format_html(
-            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+            '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',  # noqa: E501
             name=_('Edit'),
         )
         edit_button = find_toolbar_buttons(btn_name, toolbar.toolbar)[0]

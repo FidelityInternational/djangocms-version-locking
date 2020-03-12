@@ -189,8 +189,10 @@ class VersionLockUnlockTestCase(CMSTestCase):
             self.client.post(draft_unlock_url, follow=True)
 
         updated_draft_version = Version.objects.get(pk=draft_version.pk)
-        updated_draft_edit_url = self.get_admin_url(self.versionable.version_model_proxy,
-                                              'edit_redirect', updated_draft_version.pk)
+        updated_draft_edit_url = self.get_admin_url(
+            self.versionable.version_model_proxy,
+            'edit_redirect', updated_draft_version.pk
+        )
 
         # The version is still owned by the author
         self.assertTrue(updated_draft_version.created_by, self.user_author)

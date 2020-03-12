@@ -49,7 +49,8 @@ def new_edit_button(func):
         item_list = ButtonList(side=self.toolbar.RIGHT)
         button = ButtonWithAttributes(
             format_html(
-                '<span style="vertical-align:middle;position:relative;top:-1px" class="cms-icon cms-icon-lock"></span>{name}',
+                '<span style="vertical-align:middle;position:relative;top:-1px" '
+                'class="cms-icon cms-icon-lock"></span>{name}',
                 name=_('Edit'),
             ),
             url='javascript:void(0)',
@@ -60,4 +61,6 @@ def new_edit_button(func):
         item_list.buttons.append(button)
         self.toolbar.add_item(item_list)
     return inner
+
+
 VersioningToolbar._add_edit_button = new_edit_button(VersioningToolbar._add_edit_button)

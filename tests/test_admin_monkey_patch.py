@@ -7,13 +7,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 
+from djangocms_version_locking.models import VersionLock
+from djangocms_version_locking.test_utils import factories
+from djangocms_version_locking.test_utils.polls.cms_config import (
+    PollsCMSConfig,
+)
 from djangocms_versioning import constants
 from djangocms_versioning.helpers import version_list_url
 from djangocms_versioning.models import Version
-
-from djangocms_version_locking.models import VersionLock
-from djangocms_version_locking.test_utils import factories
-from djangocms_version_locking.test_utils.polls.cms_config import PollsCMSConfig
 
 
 def _content_has_lock(content):

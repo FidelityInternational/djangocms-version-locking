@@ -1,14 +1,13 @@
 from django.utils.translation import ugettext_lazy as _
 
-from djangocms_versioning import models, constants
-from djangocms_versioning.exceptions import ConditionFailed
-
 from djangocms_version_locking.helpers import (
     create_version_lock,
     get_latest_draft_version,
     remove_version_lock,
     version_is_locked,
 )
+from djangocms_versioning import models, constants
+from djangocms_versioning.exceptions import ConditionFailed
 
 
 def new_save(old_save):

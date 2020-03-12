@@ -1,11 +1,13 @@
-from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 
 from cms.toolbar.items import Button, ButtonList
 
+from djangocms_version_locking.helpers import (
+    content_is_unlocked_for_user,
+    get_lock_for_content,
+)
 from djangocms_versioning.cms_toolbars import VersioningToolbar
-
-from djangocms_version_locking.helpers import content_is_unlocked_for_user, get_lock_for_content
 
 
 class ButtonWithAttributes(Button):

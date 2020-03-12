@@ -3,15 +3,14 @@ from cms.test_utils.testcases import CMSTestCase
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
-from djangocms_versioning.test_utils.factories import (
-    PageVersionFactory,
-    UserFactory,
-)
-
 from djangocms_version_locking.test_utils.test_helpers import (
     find_toolbar_buttons,
     get_toolbar,
     toolbar_button_exists,
+)
+from djangocms_versioning.test_utils.factories import (
+    PageVersionFactory,
+    UserFactory,
 )
 
 

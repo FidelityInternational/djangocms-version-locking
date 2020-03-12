@@ -11,6 +11,7 @@ from djangocms_versioning.models import Version
 from .admin import VersionLockAdminMixin
 from .models import VersionLock
 
+
 try:
     from djangocms_internalsearch.helpers import emit_content_change
 except ImportError:

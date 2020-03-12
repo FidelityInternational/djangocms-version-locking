@@ -1,11 +1,11 @@
 from unittest import skip
 
-from cms.test_utils.testcases import CMSTestCase
-
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.test import RequestFactory
+
+from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_version_locking.models import VersionLock
 from djangocms_version_locking.test_utils import factories

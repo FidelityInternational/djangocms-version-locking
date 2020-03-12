@@ -12,8 +12,6 @@ from djangocms_versioning.test_utils.factories import (
 )
 
 
-
-
 class CheckLockTestCase(CMSTestCase):
 
     def test_check_no_lock(self):

@@ -8,13 +8,12 @@ from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
-
 from djangocms_version_locking.emails import (
     notify_version_author_version_unlocked,
 )
 from djangocms_version_locking.helpers import (
     remove_version_lock,
-    version_is_locked
+    version_is_locked,
 )
 from djangocms_versioning import admin, constants
 from djangocms_versioning.helpers import version_list_url
@@ -122,13 +121,11 @@ def _get_urls(func):
     def inner(self, *args, **kwargs):
         url_list = func(self, *args, **kwargs)
         info = self.model._meta.app_label, self.model._meta.model_name
-        url_list.insert(0,
-            url(
-                r'^(.+)/unlock/$',
-                self.admin_site.admin_view(self._unlock_view),
-                name='{}_{}_unlock'.format(*info),
-            )
-        )
+        url_list.insert(0, url(
+            r'^(.+)/unlock/$',
+            self.admin_site.admin_view(self._unlock_view),
+            name='{}_{}_unlock'.format(*info),
+        ))
         return url_list
     return inner
 

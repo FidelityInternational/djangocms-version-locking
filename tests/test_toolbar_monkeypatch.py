@@ -1,7 +1,7 @@
-from cms.test_utils.testcases import CMSTestCase
-
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
+
+from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_version_locking.test_utils.test_helpers import (
     find_toolbar_buttons,

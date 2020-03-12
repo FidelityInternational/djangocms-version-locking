@@ -6,7 +6,7 @@ from djangocms_version_locking.helpers import (
     remove_version_lock,
     version_is_locked,
 )
-from djangocms_versioning import models, constants
+from djangocms_versioning import constants, models
 from djangocms_versioning.exceptions import ConditionFailed
 
 

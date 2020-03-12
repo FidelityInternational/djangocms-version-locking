@@ -14,13 +14,13 @@ from djangocms_version_locking.helpers import (
     version_lock_admin_factory,
 )
 from djangocms_version_locking.test_utils import factories
+from djangocms_version_locking.test_utils.polls.cms_config import (
+    PollsCMSConfig,
+)
 from djangocms_version_locking.test_utils.polls.models import (
     Answer,
     Poll,
     PollContent,
-)
-from djangocms_version_locking.test_utils.polls.cms_config import (
-    PollsCMSConfig,
 )
 from djangocms_versioning import admin as versioning_admin
 from djangocms_versioning.constants import DRAFT, PUBLISHED

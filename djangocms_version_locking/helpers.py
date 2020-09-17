@@ -9,6 +9,7 @@ from djangocms_versioning import versionables
 from djangocms_versioning.models import Version
 
 from .admin import VersionLockAdminMixin
+from .conf import EMAIL_NOTIFICATIONS_FAIL_SILENTLY
 from .models import VersionLock
 
 
@@ -147,7 +148,9 @@ def send_email(
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=recipients,
     )
-    return message.send()
+    return message.send(
+        fail_silently=EMAIL_NOTIFICATIONS_FAIL_SILENTLY
+    )
 
 
 def get_latest_draft_version(version):

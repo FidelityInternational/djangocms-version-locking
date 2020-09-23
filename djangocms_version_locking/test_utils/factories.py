@@ -2,13 +2,14 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 import factory
+from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyText
 
 from ..models import Version
 from .polls.models import Answer, Poll, PollContent
 
 
-class UserFactory(factory.django.DjangoModelFactory):
+class UserFactory(DjangoModelFactory):
     username = FuzzyText(length=12)
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
@@ -19,7 +20,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
 
 
-class AbstractVersionFactory(factory.DjangoModelFactory):
+class AbstractVersionFactory(DjangoModelFactory):
     object_id = factory.SelfAttribute('content.id')
     content_type = factory.LazyAttribute(
         lambda o: ContentType.objects.get_for_model(o.content))
@@ -30,14 +31,14 @@ class AbstractVersionFactory(factory.DjangoModelFactory):
         abstract = True
 
 
-class PollFactory(factory.django.DjangoModelFactory):
+class PollFactory(DjangoModelFactory):
     name = FuzzyText(length=6)
 
     class Meta:
         model = Poll
 
 
-class PollContentFactory(factory.django.DjangoModelFactory):
+class PollContentFactory(DjangoModelFactory):
     poll = factory.SubFactory(PollFactory)
     language = FuzzyChoice(['en', 'fr', 'it'])
     text = FuzzyText(length=24)
@@ -65,7 +66,7 @@ class PollContentWithVersionFactory(PollContentFactory):
         PollVersionFactory(content=self, **kwargs)
 
 
-class AnswerFactory(factory.django.DjangoModelFactory):
+class AnswerFactory(DjangoModelFactory):
     poll_content = factory.SubFactory(PollContentFactory)
     text = factory.LazyAttributeSequence(
         lambda o, n: 'Poll %s - Answer %d' % (o.poll_content.poll.name, n))

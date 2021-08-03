@@ -17,11 +17,12 @@ from djangocms_version_locking.helpers import (
 )
 from djangocms_versioning import admin, constants
 from djangocms_versioning.helpers import version_list_url
+from djangocms_versioning.constants import ARCHIVED, DRAFT, PUBLISHED, UNPUBLISHED
 
 
 def locked(self, version):
     """
-    Generate an locked field for Versioning Admin
+    Generate a locked field for Versioning Admin
     """
     if version.state == constants.DRAFT and version_is_locked(version):
         return render_to_string('djangocms_version_locking/admin/locked_icon.html')
@@ -30,6 +31,17 @@ def locked(self, version):
 
 locked.short_description = _('locked')
 admin.VersionAdmin.locked = locked
+
+
+def is_locked(self, obj):
+    version = self.get_version(obj)
+    if version.state == DRAFT and version_is_locked(version):
+        return render_to_string("djangocms_version_locking/admin/locked_icon.html", {"disabled": True})
+    return ""
+
+
+is_locked.short_description = _('locked')
+admin.ExtendedVersionAdminMixin.locked = is_locked
 
 
 def get_list_display(func):
@@ -44,6 +56,22 @@ def get_list_display(func):
 
 
 admin.VersionAdmin.get_list_display = get_list_display(admin.VersionAdmin.get_list_display)
+
+
+def get_extended_list_display(func):
+    """
+    Register the locked field with the ExtendedVersionAdminMixin
+    """
+    def inner(self, request):
+        list_display = func(self, request)
+        versioning_state_index = list_display.index('get_versioning_state')
+        return list_display[:versioning_state_index] + ['locked'] + list_display[versioning_state_index:]
+    return inner
+
+
+admin.ExtendedVersionAdminMixin.get_list_display = get_extended_list_display(
+    admin.ExtendedVersionAdminMixin.get_list_display
+)
 
 
 def _unlock_view(self, request, object_id):
@@ -170,3 +198,4 @@ admin.VersionAdmin._get_edit_redirect_version = _get_edit_redirect_version(
 # Add Version Locking css media to the Versioning Admin instance
 additional_css = ('djangocms_version_locking/css/version-locking.css',)
 admin.VersionAdmin.Media.css['all'] = admin.VersionAdmin.Media.css['all'] + additional_css
+admin.ExtendedVersionAdminMixin.Media.css['all'] = admin.ExtendedVersionAdminMixin.Media.css['all'] + additional_css

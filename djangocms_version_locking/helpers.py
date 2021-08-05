@@ -156,8 +156,8 @@ def send_email(
 def get_latest_draft_version(version):
     """Get latest draft version of version object
     """
-    from djangocms_versioning.models import Version
     from djangocms_versioning.constants import DRAFT
+    from djangocms_versioning.models import Version
 
     drafts = (
         Version.objects

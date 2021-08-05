@@ -6,9 +6,10 @@ from cms.test_utils.testcases import CMSTestCase
 from cms.toolbar.utils import get_object_preview_url
 from cms.utils import get_current_site
 
-from djangocms_version_locking.utils import get_absolute_url
 from djangocms_versioning.cms_config import VersioningCMSConfig
 from djangocms_versioning.test_utils import factories
+
+from djangocms_version_locking.utils import get_absolute_url
 
 
 class VersionLockNotificationEmailsTestCase(CMSTestCase):

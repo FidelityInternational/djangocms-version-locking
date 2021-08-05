@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 
+from urllib.parse import urljoin
+
 from django.conf import settings
 from django.contrib.sites.models import Site
-
-from urllib.parse import urljoin
 
 
 def get_absolute_url(location, site=None):

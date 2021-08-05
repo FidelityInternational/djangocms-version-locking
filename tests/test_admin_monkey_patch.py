@@ -12,7 +12,9 @@ from djangocms_version_locking.test_utils import factories
 from djangocms_version_locking.test_utils.polls.cms_config import (
     PollsCMSConfig,
 )
+from djangocms_version_locking.test_utils.polls.models import PollContent
 from djangocms_versioning import constants
+from djangocms_versioning.admin import ExtendedVersionAdminMixin
 from djangocms_versioning.helpers import version_list_url
 from djangocms_versioning.models import Version
 
@@ -252,10 +254,13 @@ class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):
 
     def setUp(self):
         self.superuser = self.get_superuser()
+        self.model = PollContent
+        self.site = admin.AdminSite()
+        self.admin_class = type("TestAdmin", (ExtendedVersionAdminMixin, admin.ModelAdmin,), {})
 
     def test_version_locking_css_media_loaded(self):
         """
-        The verison locking css media is loaded on the page
+        The version locking css media is loaded on the page
         """
         poll_version = factories.PollVersionFactory(created_by=self.superuser)
         changelist_url = version_list_url(poll_version.content)
@@ -265,3 +270,103 @@ class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):
             response = self.client.post(changelist_url)
 
         self.assertContains(response, css_file)
+
+    def test_version_locking_extended_admin_css_media_loaded(self):
+        """
+        The version locking css media for extended version admin is loaded on the page
+        """
+        admin.site.unregister(PollContent)
+
+        class AdminExtended(ExtendedVersionAdminMixin, admin.ModelAdmin):
+            pass
+
+        admin.site.register(PollContent, AdminExtended)
+        poll_version = factories.PollVersionFactory(created_by=self.superuser)
+        changelist_url = version_list_url(poll_version.content)
+        css_file = "djangocms_version_locking/css/version-locking.css"
+
+        with self.login_user_context(self.superuser):
+            response = self.client.post(changelist_url)
+
+        self.assertContains(response, css_file)
+
+
+class ExtendedAdminVersionLockMonkeyPatchActionStateTestCase(CMSTestCase):
+
+    def setUp(self):
+        admin.site.unregister(PollContent)
+
+        class AdminExtended(ExtendedVersionAdminMixin, admin.ModelAdmin):
+            pass
+
+        admin.site.register(PollContent, AdminExtended)
+        self.superuser = self.get_superuser()
+        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
+        self.versionable = PollsCMSConfig.versioning[0]
+        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
+
+    def test_edit_action_link_enabled_state(self):
+        """
+        The edit action is active for given user
+        """
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+        otheruser_request = RequestFactory()
+        otheruser_request.user = self.superuser
+
+        actual_enabled_state = self.version_admin._get_edit_link(version, author_request)
+
+        self.assertNotIn("inactive", actual_enabled_state)
+
+    def test_edit_action_link_disabled_state(self):
+        """
+        The edit action is disabled for a different user to the locked user
+        """
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+        otheruser_request = RequestFactory()
+        otheruser_request.user = self.superuser
+        actual_disabled_state = self.version_admin._get_edit_link(version, otheruser_request)
+
+        self.assertIn("inactive", actual_disabled_state)
+
+class ExtendedAdminVersionFieldMonkeyPatchTestCase(CMSTestCase):
+
+    def setUp(self):
+        self.superuser = self.get_superuser()
+
+    def test_extended_admin_monkey_patch_list_display_locked(self):
+        """
+        Monkey patch should add lock values to admin menus which implement
+        the ExtendedVersionAdminMixin
+        """
+        class ExtendedPollAdmin(ExtendedVersionAdminMixin, admin.ModelAdmin):
+            """
+            Admin class for PollContent that implements extended versioning functionality
+            """
+            pass
+        admin.site.unregister(PollContent)
+        admin.site.register(PollContent, ExtendedPollAdmin)
+        version = factories.PollVersionFactory(created_by=self.superuser)
+        request = self.get_request("/")
+
+        version_admin = admin.site._registry[type(version.content)]
+        list_display = version_admin.get_list_display(request)
+
+        # List display field should have been added by monkeypatch
+        self.assertIn('locked', list_display)
+
+        changelist_url = version_list_url(version.content)
+
+        with self.login_user_context(self.superuser):
+            response = self.client.post(changelist_url)
+
+        # Lock options should be rendered rendered
+        self.assertContains(
+            response, 'td class="field-locked">\n<span class="cms-version-locked-status-icon" title="Locked">'
+        )
+
+        # The monkey patch should have replaced the get_list_display method with the method provided
+        self.assertIn('ExtendedAdminVersionFieldMonkeyPatchTestCase', str(version_admin.get_list_display))

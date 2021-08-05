@@ -11,3 +11,6 @@ django-sekizai<2.0.0  # Support Django<2.0
 
 # Get the latest cms v4 compatible djangocms-text-ckeditor
 https://github.com/divio/djangocms-text-ckeditor/tarball/support/4.0.x#egg=djangocms-text-ckeditor
+
+# TODO: Swap for released versioning implementation instead of personal repo
+http://github.com/adam-murray/djangocms-versioning/tarball/feature/generic-admin-mixin#egg=djangocms-versioning

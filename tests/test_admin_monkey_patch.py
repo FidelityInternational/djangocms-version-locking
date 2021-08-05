@@ -291,47 +291,6 @@ class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):
         self.assertContains(response, css_file)
 
 
-class ExtendedAdminVersionLockMonkeyPatchActionStateTestCase(CMSTestCase):
-
-    def setUp(self):
-        admin.site.unregister(PollContent)
-
-        class AdminExtended(ExtendedVersionAdminMixin, admin.ModelAdmin):
-            pass
-
-        admin.site.register(PollContent, AdminExtended)
-        self.superuser = self.get_superuser()
-        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
-        self.versionable = PollsCMSConfig.versioning[0]
-        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
-
-    def test_edit_action_link_enabled_state(self):
-        """
-        The edit action is active for given user
-        """
-        version = factories.PollVersionFactory(created_by=self.user_author)
-        author_request = RequestFactory()
-        author_request.user = self.user_author
-        otheruser_request = RequestFactory()
-        otheruser_request.user = self.superuser
-
-        actual_enabled_state = self.version_admin._get_edit_link(version, author_request)
-
-        self.assertNotIn("inactive", actual_enabled_state)
-
-    def test_edit_action_link_disabled_state(self):
-        """
-        The edit action is disabled for a different user to the locked user
-        """
-        version = factories.PollVersionFactory(created_by=self.user_author)
-        author_request = RequestFactory()
-        author_request.user = self.user_author
-        otheruser_request = RequestFactory()
-        otheruser_request.user = self.superuser
-        actual_disabled_state = self.version_admin._get_edit_link(version, otheruser_request)
-
-        self.assertIn("inactive", actual_disabled_state)
-
 class ExtendedAdminVersionFieldMonkeyPatchTestCase(CMSTestCase):
 
     def setUp(self):

@@ -66,12 +66,12 @@ def get_extended_list_display(func):
     def inner(self, request):
         list_display = func(self, request)
         versioning_state_index = list_display.index('get_versioning_state')
-        return list_display[:versioning_state_index] + ['locked'] + list_display[versioning_state_index:]
+        return tuple(list_display[:versioning_state_index] + 'locked' + list_display[versioning_state_index:])
     return inner
 
 
-admin.ExtendedVersionAdminMixin.get_list_display = get_extended_list_display(
-    admin.ExtendedVersionAdminMixin.get_list_display
+admin.ExtendedVersionAdminMixin.list_display = get_extended_list_display(
+    admin.ExtendedVersionAdminMixin.list_display
 )
 
 

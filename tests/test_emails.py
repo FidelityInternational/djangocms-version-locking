@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Permission
 from django.core import mail
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from cms.test_utils.testcases import CMSTestCase
 from cms.toolbar.utils import get_object_preview_url

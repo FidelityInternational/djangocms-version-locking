@@ -7,6 +7,10 @@ from django.utils.translation import gettext_lazy as _
 
 from cms.test_utils.testcases import CMSTestCase
 
+from djangocms_versioning import admin as versioning_admin
+from djangocms_versioning.constants import DRAFT, PUBLISHED
+from djangocms_versioning.models import Version
+
 import djangocms_version_locking.helpers
 from djangocms_version_locking.admin import VersionLockAdminMixin
 from djangocms_version_locking.helpers import (
@@ -22,9 +26,6 @@ from djangocms_version_locking.test_utils.polls.models import (
     Poll,
     PollContent,
 )
-from djangocms_versioning import admin as versioning_admin
-from djangocms_versioning.constants import DRAFT, PUBLISHED
-from djangocms_versioning.models import Version
 
 
 class AdminReplaceVersioningTestCase(CMSTestCase):

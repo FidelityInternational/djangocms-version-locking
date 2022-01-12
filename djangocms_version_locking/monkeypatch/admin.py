@@ -8,6 +8,9 @@ from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.translation import gettext_lazy as _
 
+from djangocms_versioning import admin, constants
+from djangocms_versioning.helpers import version_list_url
+
 from djangocms_version_locking.emails import (
     notify_version_author_version_unlocked,
 )
@@ -15,8 +18,6 @@ from djangocms_version_locking.helpers import (
     remove_version_lock,
     version_is_locked,
 )
-from djangocms_versioning import admin, constants
-from djangocms_versioning.helpers import version_list_url
 
 
 def locked(self, version):

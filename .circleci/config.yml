@@ -97,7 +97,7 @@ jobs:
   isort:
     <<: *py39default
 
-  py37dj22-sqlite-cms40:
+  py37-dj22-sqlite-cms40:
     <<: *py37default
   py38-dj22-sqlite-cms40:
     <<: *py38default

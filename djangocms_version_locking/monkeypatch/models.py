@@ -1,4 +1,7 @@
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+
+from djangocms_versioning import constants, models
+from djangocms_versioning.exceptions import ConditionFailed
 
 from djangocms_version_locking.helpers import (
     create_version_lock,
@@ -6,8 +9,6 @@ from djangocms_version_locking.helpers import (
     remove_version_lock,
     version_is_locked,
 )
-from djangocms_versioning import constants, models
-from djangocms_versioning.exceptions import ConditionFailed
 
 
 def new_save(old_save):

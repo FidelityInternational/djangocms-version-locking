@@ -1,4 +1,5 @@
 HELPER_SETTINGS = {
+    'SECRET_KEY': 'djangocms-version-locking-test-suite',
     'TIME_ZONE': 'Europe/London',
     'INSTALLED_APPS': [
         'djangocms_text_ckeditor',
@@ -46,11 +47,12 @@ HELPER_SETTINGS = {
     },
     'PARLER_ENABLE_CACHING': False,
     'LANGUAGE_CODE': 'en',
+    'DEFAULT_AUTO_FIELD': 'django.db.models.AutoField',
 }
 
 
 def run():
-    from djangocms_helper import runner
+    from app_helper import runner
     runner.cms('djangocms_version_locking', extra_args=[])
 
 

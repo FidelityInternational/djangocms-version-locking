@@ -249,6 +249,47 @@ class VersionLockEditActionStateTestCase(CMSTestCase):
         self.assertIn("inactive", actual_disabled_state)
 
 
+class VersionLockEditActionSideFrameTestCase(CMSTestCase):
+    def setUp(self):
+        self.superuser = self.get_superuser()
+        self.user_author = self._create_user("author", is_staff=True, is_superuser=False)
+        self.versionable = PollsCMSConfig.versioning[0]
+        self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
+
+    def test_version_unlock_enabled_keep_side_frame(self):
+        """
+        When clicking on an versionables enabled unlock icon, the sideframe is kept open
+        """
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+        otheruser_request = RequestFactory()
+        otheruser_request.user = self.superuser
+
+        actual_enabled_state = self.version_admin._get_unlock_link(version, otheruser_request)
+
+        self.assertNotIn("inactive", actual_enabled_state)
+
+        # The url link should keep the sideframe open
+        self.assertIn("js-versioning-keep-sideframe", actual_enabled_state)
+        self.assertNotIn("js-versioning-close-sideframe", actual_enabled_state)
+
+    def test_version_unlock_disabled_keep_side_frame(self):
+        """
+        When clicking on an versionables enabled lock icon, the sideframe is kept open
+        """
+        version = factories.PollVersionFactory(created_by=self.user_author)
+        author_request = RequestFactory()
+        author_request.user = self.user_author
+
+        actual_enabled_state = self.version_admin._get_unlock_link(version, author_request)
+
+        self.assertIn("inactive", actual_enabled_state)
+
+        # The url link should keep the sideframe open
+        self.assertNotIn("js-versioning-keep-sideframe", actual_enabled_state)
+
+
 class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):
 
     def setUp(self):

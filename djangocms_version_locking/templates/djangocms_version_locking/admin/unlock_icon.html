@@ -1,9 +1,12 @@
 {% load static i18n %}
-
+<a class="btn cms-versioning-action-btn
 {% if disabled %}
-<a class="btn cms-versioning-action-btn inactive" title="{% trans "Unlock" %}">
+inactive
 {% else %}
-<a class="btn cms-versioning-action-btn js-versioning-action" href="{{ unlock_url }}" title="{% trans "Unlock" %}">
+js-versioning-action
+{% if keepsideframe|default_if_none:True %}js-versioning-keep-sideframe {% else %}js-versioning-close-sideframe {% endif %}
+" href="{{ unlock_url }}"
 {% endif %}
-    <img src="{% static 'djangocms_version_locking/svg/unlock.svg' %}">
+   title="{% trans "Unlock" %}">
+<img src="{% static 'djangocms_version_locking/svg/unlock.svg' %}">
 </a>

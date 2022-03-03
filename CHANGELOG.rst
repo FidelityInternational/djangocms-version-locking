@@ -4,6 +4,7 @@ Changelog
 
 Unreleased
 ==========
+* Version mixin unlock icon remains in sideframe
 
 1.0.0 (2022-02-16)
 ==================

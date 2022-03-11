@@ -256,7 +256,7 @@ class VersionLockEditActionSideFrameTestCase(CMSTestCase):
         self.versionable = PollsCMSConfig.versioning[0]
         self.version_admin = admin.site._registry[self.versionable.version_model_proxy]
 
-    def test_version_unlock_enabled_keep_side_frame(self):
+    def test_version_unlock_keep_side_frame(self):
         """
         When clicking on an versionables enabled unlock icon, the sideframe is kept open
         """

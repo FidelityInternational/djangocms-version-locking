@@ -274,21 +274,6 @@ class VersionLockEditActionSideFrameTestCase(CMSTestCase):
         self.assertIn("js-versioning-keep-sideframe", actual_enabled_state)
         self.assertNotIn("js-versioning-close-sideframe", actual_enabled_state)
 
-    def test_version_unlock_disabled_keep_side_frame(self):
-        """
-        When clicking on an versionables enabled lock icon, the sideframe is kept open
-        """
-        version = factories.PollVersionFactory(created_by=self.user_author)
-        author_request = RequestFactory()
-        author_request.user = self.user_author
-
-        actual_enabled_state = self.version_admin._get_unlock_link(version, author_request)
-
-        self.assertIn("inactive", actual_enabled_state)
-
-        # The url link should keep the sideframe open
-        self.assertNotIn("js-versioning-keep-sideframe", actual_enabled_state)
-
 
 class VersionLockMediaMonkeyPatchTestCase(CMSTestCase):
 

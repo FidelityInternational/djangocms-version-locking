@@ -268,8 +268,6 @@ class VersionLockEditActionSideFrameTestCase(CMSTestCase):
 
         actual_enabled_state = self.version_admin._get_unlock_link(version, otheruser_request)
 
-        self.assertNotIn("inactive", actual_enabled_state)
-
         # The url link should keep the sideframe open
         self.assertIn("js-versioning-keep-sideframe", actual_enabled_state)
         self.assertNotIn("js-versioning-close-sideframe", actual_enabled_state)

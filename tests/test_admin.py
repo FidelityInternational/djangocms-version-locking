@@ -115,6 +115,23 @@ class AdminLockedFieldTestCase(CMSTestCase):
         self.assertNotEqual("", self.hijacked_admin.locked(draft_version))
 
 
+class AdminMixinLockedFieldTestCase(CMSTestCase):
+    def test_admin_mixin_added_lock_item(self):
+        """
+        When a content model inherits VersionLockContentAdminMixin,
+        and is locked to the current user, the lock icon will render.
+        """
+        draft_version = factories.PollContentWithVersionFactory()
+        admin_url = self.get_admin_url(PollContent, "changelist")
+
+        with self.login_user_context(self.get_superuser()):
+            response = self.client.get(admin_url)
+
+        self.assertContains(response, draft_version.__str__())
+        self.assertContains(response, "cms-version-locked-status-icon")
+        self.assertContains(response, "/static/djangocms_version_locking/svg/lock.svg")
+
+
 class AdminPermissionTestCase(CMSTestCase):
 
     @classmethod

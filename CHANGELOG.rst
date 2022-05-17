@@ -4,6 +4,7 @@ Changelog
 
 Unreleased
 ==========
+* Feat: Added mixin to provide lock icon to content models
 
 1.0.1 (2022-03-14)
 ==================

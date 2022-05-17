@@ -1,4 +1,7 @@
+from django.template.loader import render_to_string
+
 from djangocms_versioning.admin import VersioningAdminMixin
+from djangocms_versioning.constants import DRAFT
 
 
 class VersionLockAdminMixin(VersioningAdminMixin):
@@ -23,3 +26,15 @@ class VersionLockAdminMixin(VersioningAdminMixin):
         if obj:
             return content_is_unlocked_for_user(obj, request.user)
         return True
+
+class VersionLockContentAdminMixin(VersioningAdminMixin):
+    def get_list_display(self, request):
+        list_display = self.list_display
+        return ("get_locked_name", ) + list_display[1:]
+
+    def get_locked_name(self, obj):
+        from djangocms_version_locking.helpers import version_is_locked
+        version = obj.versions.all()[0]
+        if version.state == DRAFT and version_is_locked(version):
+            lock_icon = render_to_string("djangocms_version_locking/admin/locked_icon.html")
+            return f"{lock_icon}{obj.__str__()}"

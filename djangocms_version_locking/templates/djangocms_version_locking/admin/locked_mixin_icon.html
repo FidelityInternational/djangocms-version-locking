@@ -1,0 +1,7 @@
+{% load static i18n %}
+<a class="btn cms-versioning-action-btn inactive" title="{% trans "Locked" %}">
+    <img src="{% static 'djangocms_version_locking/svg/lock.svg' %}">
+{% if locked_by %}
+  ({{ locked_by }})
+{% endif %}
+</a>

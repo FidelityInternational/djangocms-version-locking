@@ -11,6 +11,11 @@ from djangocms_versioning import admin as versioning_admin
 from djangocms_versioning.constants import DRAFT, PUBLISHED
 from djangocms_versioning.models import Version
 
+from djangocms_alias.models import (
+    Alias,
+    AliasContent,
+    Category,
+)
 import djangocms_version_locking.helpers
 from djangocms_version_locking.admin import VersionLockAdminMixin
 from djangocms_version_locking.helpers import (
@@ -156,3 +161,51 @@ class AdminPermissionTestCase(CMSTestCase):
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 403)
+
+
+class AdminExtensionTestCase(CMSTestCase):
+    def setUp(self):
+        self.superuser = self.get_superuser()
+        self.regular_staff_user = self._create_user(
+            "regular",
+            is_staff=True,
+            permissions=["view_aliascontent", "change_aliascontent"]
+        )
+        self.category = Category.objects.create(name='Language Filter Category')
+        self.alias = Alias.objects.create(
+            category=self.category,
+            position=0,
+        )
+        self.alias_content = AliasContent.objects.create(
+            alias=self.alias,
+            name="Alias Content",
+            language="en",
+        )
+
+    def test_version_lock_added_to_locked_alias(self):
+        """
+        With a locked item, the ExtendedVersionAdminMixin injects the lock item to the name field
+        """
+        Version.objects.create(content=self.alias_content, created_by=self.superuser, state=DRAFT)
+        admin_url = self.get_admin_url(AliasContent, "changelist")
+
+        with self.login_user_context(self.regular_staff_user):
+            response = self.client.get(admin_url)
+
+        self.assertContains(response, '<a class="btn cms-versioning-action-btn inactive" title="Locked">')
+        self.assertContains(response, '<img src="/static/djangocms_version_locking/svg/lock.svg">')
+        self.assertContains(response, self.alias_content.name)
+
+    def test_version_lock_not_added_to_unlocked_alias(self):
+        """
+        With an unlocked item, the ExtendedVersionAdminMixin just displays the Alias name
+        """
+        Version.objects.create(content=self.alias_content, created_by=self.superuser, state=PUBLISHED)
+        admin_url = self.get_admin_url(AliasContent, "changelist")
+
+        with self.login_user_context(self.superuser):
+            response = self.client.get(admin_url)
+
+        self.assertNotContains(response, '<a class="btn cms-versioning-action-btn inactive" title="Locked">')
+        self.assertNotContains(response, '<img src="/static/djangocms_version_locking/svg/lock.svg">')
+        self.assertContains(response, self.alias_content.name)

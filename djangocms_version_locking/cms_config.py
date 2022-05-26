@@ -18,7 +18,7 @@ def add_alias_version_lock(obj, field):
     return format_html(
         "{is_locked}{field_value}",
         is_locked=lock_icon,
-        field_value=getattr(obj,field)
+        field_value=getattr(obj, field),
     )
 
 

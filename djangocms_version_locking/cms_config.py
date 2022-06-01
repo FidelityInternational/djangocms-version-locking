@@ -37,4 +37,4 @@ class VersionLockingCMSExtension(CMSAppExtension):
 class VersionLockingCMSAppConfig(CMSAppConfig):
     djangocms_versioning_enabled = True
     versioning = []
-    extended_admin_field_modifiers = [(AliasContent, "name", add_alias_version_lock), ]
+    extended_admin_field_modifiers = [{AliasContent: {"name": add_alias_version_lock}}, ]

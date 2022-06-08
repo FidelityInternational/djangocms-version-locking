@@ -4,6 +4,7 @@ Changelog
 
 Unreleased
 ==========
+* Added config to inject version lock item into Alias Content names
 
 1.0.1 (2022-03-14)
 ==================

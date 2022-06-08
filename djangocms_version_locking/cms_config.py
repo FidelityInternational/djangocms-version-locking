@@ -11,6 +11,7 @@ from djangocms_version_locking.helpers import version_is_locked
 
 def add_alias_version_lock(obj, field):
     version = obj.versions.all()[0]
+    lock_icon = ""
     if version.state == DRAFT and version_is_locked(version):
         lock_icon = render_to_string("djangocms_version_locking/admin/locked_mixin_icon.html")
     else:

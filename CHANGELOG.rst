@@ -4,11 +4,14 @@ Changelog
 
 Unreleased
 ==========
-* Added config to inject version lock item into Alias Content names
+
+1.1.0 (2022-06-08)
+==================
+* feat: Added config to inject version lock item into Alias Content names. Requires djangocms-versioning==1.1.0
 
 1.0.1 (2022-03-14)
 ==================
-* Version mixin unlock icon remains in sideframe
+* fix: Version mixin unlock icon remains in sideframe
 
 1.0.0 (2022-02-16)
 ==================

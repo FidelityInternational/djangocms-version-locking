@@ -14,8 +14,6 @@ def add_alias_version_lock(obj, field):
     lock_icon = ""
     if version.state == DRAFT and version_is_locked(version):
         lock_icon = render_to_string("djangocms_version_locking/admin/locked_mixin_icon.html")
-    else:
-        lock_icon = ""
     return format_html(
         "{is_locked}{field_value}",
         is_locked=lock_icon,

@@ -188,7 +188,7 @@ class AdminExtensionTestCase(CMSTestCase):
         with self.login_user_context(self.regular_staff_user):
             response = self.client.get(admin_url)
 
-        self.assertContains(response, '<a class="btn cms-versioning-action-btn inactive" title="Locked">')
+        self.assertContains(response, '<a class="cms-version-locked-status-icon" title="Locked">')
         self.assertContains(response, '<img src="/static/djangocms_version_locking/svg/lock.svg">')
         self.assertContains(response, self.alias_content.name)
 

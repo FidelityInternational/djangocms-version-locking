@@ -4,6 +4,9 @@ Changelog
 
 Unreleased
 ==========
+
+1.1.1 (2022-06-09)
+==================
 * fix: Added styling to lock icon
 
 1.1.0 (2022-06-08)

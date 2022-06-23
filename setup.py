@@ -8,6 +8,10 @@ INSTALL_REQUIREMENTS = [
     'django-cms',
 ]
 
+TEST_REQUIREMENTS = [
+    "djangocms_alias",
+]
+
 setup(
     name='djangocms-version-locking',
     packages=find_packages(),
@@ -23,8 +27,12 @@ setup(
         'Topic :: Software Development'
     ],
     install_requires=INSTALL_REQUIREMENTS,
+    tests_require=TEST_REQUIREMENTS,
     author='Fidelity International',
     test_suite='test_settings.run',
     url='http://github.com/divio/djangocms-version-locking',
     license='BSD',
+    dependency_links=[
+        "http://github.com/django-cms/djangocms-alias/tarball/master#egg=djangocms-alias",
+    ]
 )

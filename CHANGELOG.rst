@@ -4,7 +4,7 @@ Changelog
 
 Unreleased
 ==========
-* fix: Changing from CircleCi to Github Actions
+* fix: Changed from CircleCi to Github Actions
 
 1.1.1 (2022-06-09)
 ==================

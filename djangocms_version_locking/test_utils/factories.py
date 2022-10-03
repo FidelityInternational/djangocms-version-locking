@@ -1,4 +1,3 @@
-import factory
 import string
 
 from django.contrib.auth.models import User
@@ -6,10 +5,10 @@ from django.contrib.contenttypes.models import ContentType
 
 from cms.models import Placeholder
 
+import factory
+from djangocms_moderation.models import ModerationCollection, Workflow
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyText
-
-from djangocms_moderation.models import ModerationCollection, Workflow
 
 from ..models import Version
 from .polls.models import Answer, Poll, PollContent, PollPlugin

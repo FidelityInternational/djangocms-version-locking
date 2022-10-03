@@ -1,15 +1,14 @@
 from cms.test_utils.testcases import CMSTestCase
 
 from djangocms_moderation.models import ModerationRequest
-
 from djangocms_versioning.test_utils.factories import PageVersionFactory
 
 from djangocms_version_locking.test_utils.factories import (
     ModerationCollectionFactory,
-    PollVersionFactory,
-    UserFactory,
     PlaceholderFactory,
     PollPluginFactory,
+    PollVersionFactory,
+    UserFactory,
 )
 
 

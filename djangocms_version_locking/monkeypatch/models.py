@@ -1,8 +1,9 @@
 from django.utils.translation import gettext_lazy as _
 
 from djangocms_moderation import models as moderation_model
-from djangocms_moderation.helpers import get_moderated_children_from_placeholder
-
+from djangocms_moderation.helpers import (
+    get_moderated_children_from_placeholder,
+)
 from djangocms_versioning import constants, models
 from djangocms_versioning.exceptions import ConditionFailed
 

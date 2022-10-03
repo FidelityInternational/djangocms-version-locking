@@ -36,4 +36,3 @@ jobs:
         with:
           linters: isort
           run: isort --check-only --diff ./
-          

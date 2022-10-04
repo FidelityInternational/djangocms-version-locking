@@ -5,7 +5,10 @@ from djangocms_moderation.models import ModerationRequest
 from djangocms_moderation.utils import get_admin_url
 from djangocms_versioning.test_utils.factories import PageVersionFactory
 
-from djangocms_version_locking.helpers import remove_version_lock, version_is_locked
+from djangocms_version_locking.helpers import (
+    remove_version_lock,
+    version_is_locked,
+)
 from djangocms_version_locking.test_utils.factories import (
     ModerationCollectionFactory,
     PlaceholderFactory,

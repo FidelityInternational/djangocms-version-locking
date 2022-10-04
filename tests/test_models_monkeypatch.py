@@ -5,7 +5,7 @@ from djangocms_moderation.models import ModerationRequest
 from djangocms_moderation.utils import get_admin_url
 from djangocms_versioning.test_utils.factories import PageVersionFactory
 
-from djangocms_version_locking.helpers import remove_version_lock
+from djangocms_version_locking.helpers import remove_version_lock, version_is_locked
 from djangocms_version_locking.test_utils.factories import (
     ModerationCollectionFactory,
     PlaceholderFactory,
@@ -42,6 +42,10 @@ class ModerationCollectionTestCase(CMSTestCase):
             collection_id=self.collection.pk,
         )
 
+        # Poll should be locked by default
+        poll_is_locked = version_is_locked(self.poll_version)
+        self.assertTrue(poll_is_locked)
+
         with self.login_user_context(self.user_1):
             self.client.post(
                 path=url,
@@ -49,10 +53,12 @@ class ModerationCollectionTestCase(CMSTestCase):
                 follow=False,
             )
 
-        # Match collection and versions in the DB
-        stored_collection = ModerationRequest.objects.filter(collection=self.collection)
+        # Get all moderation request objects for the collection
+        moderation_requests = ModerationRequest.objects.filter(collection=self.collection)
 
-        self.assertEqual(stored_collection.count(), 1)
+        self.assertEqual(moderation_requests.count(), 1)
+        self.assertTrue(moderation_requests.filter(version=self.page_version).exists())
+        self.assertFalse(moderation_requests.filter(version=self.poll_version).exists())
 
     def test_add_version_with_unlocked_child(self):
         """
@@ -72,6 +78,10 @@ class ModerationCollectionTestCase(CMSTestCase):
             collection_id=self.collection.pk,
         )
 
+        # Poll should be locked by default
+        poll_is_locked = version_is_locked(self.poll_version)
+        self.assertTrue(poll_is_locked)
+
         # Unlock the poll version
         remove_version_lock(self.poll_version)
 
@@ -82,7 +92,8 @@ class ModerationCollectionTestCase(CMSTestCase):
                 follow=False,
             )
 
-        # Match collection and versions in the DB
-        stored_collection = ModerationRequest.objects.filter(collection=self.collection)
-
-        self.assertEqual(stored_collection.count(), 2)
+        # Get all moderation request objects for the collection
+        moderation_requests = ModerationRequest.objects.filter(collection=self.collection)
+        self.assertEqual(moderation_requests.count(), 2)
+        self.assertTrue(moderation_requests.filter(version=self.page_version).exists())
+        self.assertTrue(moderation_requests.filter(version=self.poll_version).exists())

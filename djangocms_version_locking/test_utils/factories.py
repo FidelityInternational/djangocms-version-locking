@@ -1,12 +1,17 @@
+import string
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
+from cms.models import Placeholder
+
 import factory
+from djangocms_moderation.models import ModerationCollection, Workflow
 from factory.django import DjangoModelFactory
-from factory.fuzzy import FuzzyChoice, FuzzyText
+from factory.fuzzy import FuzzyChoice, FuzzyInteger, FuzzyText
 
 from ..models import Version
-from .polls.models import Answer, Poll, PollContent
+from .polls.models import Answer, Poll, PollContent, PollPlugin
 
 
 class UserFactory(DjangoModelFactory):
@@ -73,3 +78,59 @@ class AnswerFactory(DjangoModelFactory):
 
     class Meta:
         model = Answer
+
+
+class WorkflowFactory(DjangoModelFactory):
+    name = FuzzyText(length=12)
+
+    class Meta:
+        model = Workflow
+
+
+class ModerationCollectionFactory(DjangoModelFactory):
+    name = FuzzyText(length=12)
+    author = factory.SubFactory(UserFactory)
+    workflow = factory.SubFactory(WorkflowFactory)
+
+    class Meta:
+        model = ModerationCollection
+
+
+class PlaceholderFactory(DjangoModelFactory):
+    default_width = FuzzyInteger(0, 25)
+    slot = FuzzyText(length=2, chars=string.digits)
+    # NOTE: When using this factory you will probably want to set
+    # the source field manually
+
+    class Meta:
+        model = Placeholder
+
+
+def get_plugin_language(plugin):
+    """Helper function to get the language from a plugin's relationships.
+    Use this in plugin factory classes
+    """
+    if plugin.placeholder.source:
+        return plugin.placeholder.source.language
+    # NOTE: If plugin.placeholder.source is None then language will
+    # also be None unless set manually
+
+
+def get_plugin_position(plugin):
+    """Helper function to correctly calculate the plugin position.
+    Use this in plugin factory classes
+    """
+    offset = plugin.placeholder.get_last_plugin_position(plugin.language) or 0
+    return offset + 1
+
+
+class PollPluginFactory(DjangoModelFactory):
+    language = factory.LazyAttribute(get_plugin_language)
+    placeholder = factory.SubFactory(PlaceholderFactory)
+    parent = None
+    position = factory.LazyAttribute(get_plugin_position)
+    plugin_type = "PollPlugin"
+    poll = factory.SubFactory(PollFactory)
+
+    class Meta:
+        model = PollPlugin

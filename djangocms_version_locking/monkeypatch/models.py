@@ -1,5 +1,9 @@
 from django.utils.translation import gettext_lazy as _
 
+from djangocms_moderation import models as moderation_model
+from djangocms_moderation.helpers import (
+    get_moderated_children_from_placeholder,
+)
 from djangocms_versioning import constants, models
 from djangocms_versioning.exceptions import ConditionFailed
 
@@ -67,3 +71,32 @@ models.Version.check_discard += [_is_version_locked(error_message)]
 models.Version.check_revert += [_is_draft_version_locked(draft_error_message)]
 models.Version.check_unpublish += [_is_draft_version_locked(draft_error_message)]
 models.Version.check_edit_redirect += [_is_draft_version_locked(draft_error_message)]
+
+
+def _add_nested_children(self, version, parent_node):
+    """
+    Helper method which finds moderated children and adds them to the collection if
+    it's not locked by a user
+    """
+    parent = version.content
+    added_items = 0
+    if not getattr(parent, "get_placeholders", None):
+        return added_items
+
+    for placeholder in parent.get_placeholders():
+        for child_version in get_moderated_children_from_placeholder(
+                placeholder, version.versionable.grouping_values(parent)
+        ):
+            # Don't add the version if it's locked by another user
+            child_version_locked = version_is_locked(child_version)
+            if not child_version_locked:
+                moderation_request, _added_items = self.add_version(
+                    child_version, parent=parent_node, include_children=True
+                )
+            else:
+                _added_items = self._add_nested_children(child_version, parent_node)
+            added_items += _added_items
+    return added_items
+
+
+moderation_model.ModerationCollection._add_nested_children = _add_nested_children

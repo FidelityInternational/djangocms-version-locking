@@ -4,6 +4,9 @@ Changelog
 
 Unreleased
 ==========
+
+1.2.0 (2022-10-05)
+==================
 * fix: Adding child objects to a collection should be allowed unless locked by another user
 * fix: Changed from CircleCi to Github Actions
 

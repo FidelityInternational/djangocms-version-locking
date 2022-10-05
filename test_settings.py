@@ -7,6 +7,7 @@ HELPER_SETTINGS = {
         'djangocms_version_locking',
         'djangocms_version_locking.test_utils.polls',
         'djangocms_alias',
+        'djangocms_moderation',
     ],
     'MIGRATION_MODULES': {
         'auth': None,
@@ -15,6 +16,7 @@ HELPER_SETTINGS = {
         'djangocms_versioning': None,
         'djangocms_version_locking': None,
         'djangocms_alias': None,
+        'djangocms_moderation': None,
     },
     'CMS_PERMISSION': True,
     'LANGUAGES': (

@@ -1,0 +1,102 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Stefan van den Eertwegh <stefan@corebyte.nl>, 2023
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-01-22 14:06+0100\n"
+"PO-Revision-Date: 2023-01-22 13:06+0000\n"
+"Last-Translator: Stefan van den Eertwegh <stefan@corebyte.nl>, 2023\n"
+"Language-Team: Dutch (https://www.transifex.com/divio/teams/58664/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps.py:7
+msgid "django CMS Version Locking"
+msgstr "django CMS Versie vergrendeling"
+
+#: emails.py:23
+msgid "Unlocked"
+msgstr "Onvergrendeld"
+
+#: models.py:13
+msgid "locked by"
+msgstr "vergrendeld door"
+
+#: models.py:18
+msgid "version"
+msgstr "versie"
+
+#: monkeypatch/admin.py:31
+msgid "locked"
+msgstr "vergrendeld"
+
+#: monkeypatch/admin.py:55
+msgid "This view only supports POST method."
+msgstr "Deze weergave ondersteund alleen de POST methode."
+
+#: monkeypatch/admin.py:69
+msgid "You do not have permission to remove the version lock"
+msgstr "Je hebt niet de rechten om deze vergrendelde versie te verwijderen"
+
+#: monkeypatch/admin.py:74
+msgid "Version unlocked"
+msgstr "Versie onvergrendeld"
+
+#: monkeypatch/cms_toolbars.py:46
+#, python-brace-format
+msgid "Locked with {name}"
+msgstr "Vergrendeld door {name}"
+
+#: monkeypatch/cms_toolbars.py:57
+#: templates/djangocms_version_locking/admin/edit_disabled_icon.html:2
+msgid "Edit"
+msgstr "Bewerk"
+
+#: monkeypatch/models.py:65
+#, python-brace-format
+msgid "Action Denied. The latest version is locked with {user}"
+msgstr "Actie gesloten. De laatste versie is gesloten door {user}"
+
+#: monkeypatch/models.py:66
+#, python-brace-format
+msgid "Action Denied. The draft version is locked with {user}"
+msgstr "Actie gesloten. Deze concept versie is gesloten door {user}"
+
+#: templates/djangocms_version_locking/admin/locked_icon.html:2
+#: templates/djangocms_version_locking/admin/locked_mixin_icon.html:4
+msgid "Locked"
+msgstr "Vergrendeld"
+
+#: templates/djangocms_version_locking/admin/unlock_icon.html:10
+msgid "Unlock"
+msgstr "Onvergrendeld"
+
+#: templates/djangocms_version_locking/emails/unlock-notification.txt:2
+#, python-format
+msgid ""
+"\n"
+"The following draft version has been unlocked by %(by_user)s for their use.\n"
+"%(version_link)s\n"
+"\n"
+"Please note you will not be able to further edit this draft. Kindly reach out to %(by_user)s in case of any concerns.\n"
+"\n"
+"This is an automated notification from Django CMS.\n"
+msgstr ""
+"\n"
+"De huidige concept versie is  ontgrendeld door %(by_user)s voor zijn gebruik.\n"
+"%(version_link)s\n"
+"\n"
+"Let op je kunt niet bewerken van dit concept. Vriendelijk neem contact op met %(by_user)s in het geval van gevallen.\n"
+"\n"
+"Dit is een automatische notificatie van Django CMS.\n"

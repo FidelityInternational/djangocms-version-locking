@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-01-22 14:06+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: apps.py:7
+msgid "django CMS Version Locking"
+msgstr ""
+
+#: emails.py:23
+msgid "Unlocked"
+msgstr ""
+
+#: models.py:13
+msgid "locked by"
+msgstr ""
+
+#: models.py:18
+msgid "version"
+msgstr ""
+
+#: monkeypatch/admin.py:31
+msgid "locked"
+msgstr ""
+
+#: monkeypatch/admin.py:55
+msgid "This view only supports POST method."
+msgstr ""
+
+#: monkeypatch/admin.py:69
+msgid "You do not have permission to remove the version lock"
+msgstr ""
+
+#: monkeypatch/admin.py:74
+msgid "Version unlocked"
+msgstr ""
+
+#: monkeypatch/cms_toolbars.py:46
+#, python-brace-format
+msgid "Locked with {name}"
+msgstr ""
+
+#: monkeypatch/cms_toolbars.py:57
+#: templates/djangocms_version_locking/admin/edit_disabled_icon.html:2
+msgid "Edit"
+msgstr ""
+
+#: monkeypatch/models.py:65
+#, python-brace-format
+msgid "Action Denied. The latest version is locked with {user}"
+msgstr ""
+
+#: monkeypatch/models.py:66
+#, python-brace-format
+msgid "Action Denied. The draft version is locked with {user}"
+msgstr ""
+
+#: templates/djangocms_version_locking/admin/locked_icon.html:2
+#: templates/djangocms_version_locking/admin/locked_mixin_icon.html:4
+msgid "Locked"
+msgstr ""
+
+#: templates/djangocms_version_locking/admin/unlock_icon.html:10
+msgid "Unlock"
+msgstr ""
+
+#: templates/djangocms_version_locking/emails/unlock-notification.txt:2
+#, python-format
+msgid ""
+"\n"
+"The following draft version has been unlocked by %(by_user)s for their use.\n"
+"%(version_link)s\n"
+"\n"
+"Please note you will not be able to further edit this draft. Kindly reach "
+"out to %(by_user)s in case of any concerns.\n"
+"\n"
+"This is an automated notification from Django CMS.\n"
+msgstr ""

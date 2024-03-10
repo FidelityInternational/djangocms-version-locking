@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from djangocms_versioning import versionables
 from djangocms_versioning.models import Version
@@ -139,7 +139,7 @@ def send_email(
     Send emails using locking templates
     """
     template = 'djangocms_version_locking/emails/{}'.format(template)
-    subject = force_text(subject)
+    subject = force_str(subject)
     content = render_to_string(template, template_context)
 
     message = EmailMessage(

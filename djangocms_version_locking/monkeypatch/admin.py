@@ -1,11 +1,10 @@
-from django.conf.urls import url
 from django.contrib import messages
 from django.contrib.admin.utils import unquote
 from django.http import Http404, HttpResponseForbidden, HttpResponseNotAllowed
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
-from django.urls import reverse
-from django.utils.encoding import force_text
+from django.urls import re_path, reverse
+from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
 from djangocms_versioning import admin, constants
@@ -67,7 +66,7 @@ def _unlock_view(self, request, object_id):
 
     # Check that the user has unlock permission
     if not request.user.has_perm('djangocms_version_locking.delete_versionlock'):
-        return HttpResponseForbidden(force_text(_("You do not have permission to remove the version lock")))
+        return HttpResponseForbidden(force_str(_("You do not have permission to remove the version lock")))
 
     # Unlock the version
     remove_version_lock(version)
@@ -122,7 +121,7 @@ def _get_urls(func):
     def inner(self, *args, **kwargs):
         url_list = func(self, *args, **kwargs)
         info = self.model._meta.app_label, self.model._meta.model_name
-        url_list.insert(0, url(
+        url_list.insert(0, re_path(
             r'^(.+)/unlock/$',
             self.admin_site.admin_view(self._unlock_view),
             name='{}_{}_unlock'.format(*info),

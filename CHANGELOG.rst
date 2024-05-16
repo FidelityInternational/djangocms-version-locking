@@ -5,7 +5,7 @@ Changelog
 Unreleased
 ==========
 
-1.3.0 (Unreleased)
+1.3.0 (2024-05-16)
 ==================
 * Introduced Django 4.2 support.
 * Dropped Support for Django<3.1

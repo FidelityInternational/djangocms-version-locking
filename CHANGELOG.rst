@@ -4,8 +4,12 @@ Changelog
 
 Unreleased
 ==========
+
+1.3.0 (2024-05-16)
+==================
 * Introduced Django 4.2 support.
 * Dropped Support for Django<3.1
+* Added support for Python 3.10
 
 1.2.0 (2022-10-05)
 ==================
